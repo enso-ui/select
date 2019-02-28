@@ -1,0 +1,45 @@
+{
+  "name": "@enso-ui/select",
+  "version": "1.0.0",
+  "description": "Select",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enso-ui/select.git"
+  },
+  "keywords": [
+    "select",
+    "renderless",
+    "bulma",
+    "vue"
+  ],
+  "author": "Adrian Ocneanu <aocneanu@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/enso-ui/select/issues"
+  },
+  "homepage": "https://github.com/enso-ui/select#readme",
+  "devDependencies": {
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "cross-env": "^5.1.6",
+    "eslint": "^5.0.1",
+    "eslint-plugin-vue": "^5.0.0",
+    "laravel-mix": "3.0.0",
+    "node-sass": "^4.11.0",
+    "webpack-cli": "^3.2.1"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.2.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.2",
+    "@fortawesome/free-solid-svg-icons": "^5.2.0",
+    "@fortawesome/vue-fontawesome": "^0.1.1",
+    "bulma": "^0.7.2",
+    "lodash": "^4.17.10",
+    "v-click-outside": "^1.0.5",
+    "vue": "^2.5.16"
+  }
+}
