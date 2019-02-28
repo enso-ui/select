@@ -1,3 +1,3 @@
-import Datepicker from '../src/renderless/Datepicker.vue';
+import VueSelect from '../src/renderless/VueSelect.vue';
 
-export default Datepicker;
+export default VueSelect;
