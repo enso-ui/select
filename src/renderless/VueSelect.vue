@@ -101,7 +101,7 @@ export default {
                 : this.optionList;
         },
         hasSelection() {
-            return Array.isArray(this.value)
+            return this.multiple
                 ? this.value.length > 0
                 : this.value !== null;
         },
@@ -372,6 +372,7 @@ export default {
             visibleDropdown: this.visibleDropdown,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
+            hasSelection: this.hasSelection,
             trackBy: this.trackBy,
             options: this.filteredOptions,
             selection: this.selection,

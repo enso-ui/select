@@ -4,10 +4,10 @@
         <template v-slot:default="{
                 disableClear, taggable, disabled, readonly, multiple, loading,
                 visibleDropdown, visibleClearControl, selection, hasOptions,
-                trackBy, position, options, select, deselect, i18n, displayLabel,
-                isSelected, highlight, updatePosition, hideDropdown, clear,
-                selectBindings, selectEvents, filterBindings, filterEvents,
-                taggableEvents
+                hasSelection, trackBy, position, options, select, deselect,
+                i18n, displayLabel, isSelected, highlight, updatePosition,
+                hideDropdown, clear, selectBindings, selectEvents, filterBindings,
+                filterEvents, taggableEvents
             }">
             <div :class="['dropdown', { 'is-active': visibleDropdown }]"
                 v-click-outside="hideDropdown">
@@ -41,7 +41,7 @@
                                     v-if="visibleDropdown">
                             </div>
                             <div v-if="!visibleDropdown">
-                                <span v-if="!multiple && selection">
+                                <span v-if="!multiple && hasSelection">
                                     <slot name="selection"
                                         :selection="selection"
                                         :display-label="displayLabel"
@@ -49,11 +49,11 @@
                                         {{ displayLabel(selection) }}
                                     </slot>
                                 </span>
-                                <span v-if="!selection && hasOptions">
-                                    {{ i18n(placeholder) }}
-                                </span>
-                                <span v-else-if="!hasOptions">
+                                <span v-if="!hasOptions">
                                     {{ i18n(labels.noOptions) }}
+                                </span>
+                                <span v-else-if="!hasSelection">
+                                    {{ i18n(placeholder) }}
                                 </span>
                             </div>
                             <span class="is-loading"
