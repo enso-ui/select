@@ -2,134 +2,128 @@
     <core-select v-bind="$attrs"
         v-on="$listeners">
         <template v-slot:default="{
-                disableClear, taggable, disabled, readonly, multiple, loading,
-                visibleDropdown, visibleClearControl, selection, hasOptions,
-                hasSelection, trackBy, position, options, select, deselect,
-                i18n, displayLabel, isSelected, highlight, updatePosition,
-                hideDropdown, clear, selectBindings, selectEvents, filterBindings,
-                filterEvents, taggableEvents
+                multiple, taggable, loading, closedDropdown, disableClear, visibleClearControl,
+                hasOptions, options, hasSelection, selection, trackBy, position, i18n, displayLabel,
+                isSelected, highlight, dropdownBindings, dropdownEvents, dropdownTriggerEvents,
+                filterEvents, filterBindings, itemEvents, selectionBindings, selectionEvents,
+                clearEvents, taggableEvents,
             }">
-            <div :class="['dropdown', { 'is-active': visibleDropdown }]"
-                v-click-outside="hideDropdown">
-                <div class="dropdown-trigger">
-                    <fieldset class="control-input input"
+            <dropdown class="vue-select"
+                width="100%"
+                v-bind="dropdownBindings"
+                v-on="dropdownEvents">
+                <template v-slot:dropdown-trigger>
+                    <div class="input dropdown-trigger-input"
                         :class="{ 'is-danger': hasError }"
-                        tabindex="0"
-                        v-bind="selectBindings"
-                        v-on="selectEvents">
+                        v-on="dropdownTriggerEvents">
                         <div class="select-value">
                             <div class="field is-grouped is-grouped-multiline">
-                                <div class="control"
-                                    v-if="multiple">
-                                    <slot name="selection"
-                                        :selection="selection"
-                                        :display-label="displayLabel"
-                                        :deselect="deselect"
-                                        :track-by="trackBy">
-                                        <tag v-for="value in selection"
-                                            :disabled="readonly || disabled"
-                                            :label="displayLabel(value)"
-                                            :key="value[trackBy]"
-                                            @deselect="deselect(value)"/>
-                                    </slot>
-                                </div>
-                                <input class="input select-input"
+                                <template v-if="hasSelection">
+                                    <div class="control">
+                                        <slot name="selection"
+                                            :selection="selection"
+                                            :selection-bindings="selectionBindings"
+                                            :selection-events="selectionEvents"
+                                            :track-by="trackBy">
+                                            <template v-if="multiple">
+                                                <tag v-for="value in selection"
+                                                    :key="value[trackBy]"
+                                                    v-bind="selectionBindings(value)"
+                                                    v-on="selectionEvents(value)"/>
+                                            </template>
+                                            <template v-else-if="selection && closedDropdown">
+                                                {{ displayLabel(selection) }}
+                                            </template>
+                                        </slot>
+                                    </div>
+                                </template>
+                                <span v-else-if="hasOptions">
+                                    {{ i18n(placeholder) }}
+                                </span>
+                                <span v-else>
+                                    {{ i18n(labels.noOptions) }}
+                                </span>
+                                <input class="input select-filter"
                                     type="text"
                                     :placeholder="i18n(placeholder)"
                                     v-bind="filterBindings"
                                     v-on="filterEvents"
-                                    v-if="visibleDropdown">
-                            </div>
-                            <div v-if="!visibleDropdown">
-                                <span v-if="!multiple && hasSelection">
-                                    <slot name="selection"
-                                        :selection="selection"
-                                        :display-label="displayLabel"
-                                        :deselect="deselect">
-                                        {{ displayLabel(selection) }}
-                                    </slot>
-                                </span>
-                                <span v-if="!hasOptions">
-                                    {{ i18n(labels.noOptions) }}
-                                </span>
-                                <span v-else-if="!hasSelection">
-                                    {{ i18n(placeholder) }}
-                                </span>
+                                    v-if="!closedDropdown"
+                                    v-focus>
                             </div>
                             <span class="is-loading"
                                 v-if="loading"/>
                             <a class="delete is-small"
-                                v-if="visibleClearControl"
-                                @mousedown.prevent.self="clear"/>
-                            <span class="icon is-small angle"
-                                :aria-hidden="visibleDropdown">
-                                <fa icon="angle-up"/>
-                            </span>
+                                v-on="clearEvents"
+                                v-if="visibleClearControl"/>
+                            <dropdown-indicator class="is-small"
+                                :open="!closedDropdown"/>
                         </div>
-                    </fieldset>
-                </div>
-                <div class="dropdown-menu">
-                    <div class="dropdown-content">
-                        <slot name="options"
-                            :options="options"
-                            :display-label="displayLabel"
-                            :is-selected="isSelected"
-                            :highlight="highlight">
-                            <a class="dropdown-item"
-                                v-for="(option, index) in options"
-                                :key="option[trackBy]"
-                                :class="{ 'is-active': position === index }"
-                                @mouseenter="updatePosition(index)"
-                                @click="select()">
-                                <span v-html="highlight(displayLabel(option))"/>
-                                <span class="label tag"
-                                    :class="isSelected(option) ? 'is-warning' : 'is-success'"
-                                    v-if="index === position && !disableClear">
-                                    <span v-if="isSelected(option)">
-                                        {{ i18n(labels.deselect) }}
-                                    </span>
-                                    <span v-else>
-                                        {{ i18n(labels.select) }}
-                                    </span>
-                                </span>
-                                <span class="icon is-small selected has-text-success"
-                                    v-else-if="isSelected(option)">
-                                    <fa icon="check"/>
-                                </span>
-                            </a>
-                        </slot>
+                    </div>
+                </template>
+                <template v-slot:dropdown-content>
+                    <slot name="options"
+                        :options="options"
+                        :display-label="displayLabel"
+                        :is-selected="isSelected"
+                        :highlight="highlight">
                         <a class="dropdown-item"
-                            v-on="taggableEvents"
-                            v-if="!hasOptions">
-                            {{ i18n(labels.noResults) }}
-                            <span class="label tag is-info"
-                                v-if="taggable">
-                                {{ i18n(labels.addTag) }}
+                            v-for="(option, index) in options"
+                            :key="option[trackBy]"
+                            :class="{ 'is-active': position === index }"
+                            v-on="itemEvents(index)">
+                            <span v-html="highlight(displayLabel(option))"/>
+                            <span class="label tag"
+                                :class="isSelected(option) ? 'is-warning' : 'is-success'"
+                                v-if="index === position && !disableClear">
+                                <span v-if="isSelected(option)">
+                                    {{ i18n(labels.deselect) }}
+                                </span>
+                                <span v-else>
+                                    {{ i18n(labels.select) }}
+                                </span>
+                            </span>
+                            <span class="icon is-small selected has-text-success"
+                                v-else-if="isSelected(option)">
+                                <fa icon="check"/>
                             </span>
                         </a>
-                    </div>
-                </div>
-            </div>
+                    </slot>
+                    <a class="dropdown-item"
+                        v-on="taggableEvents"
+                        v-if="!hasOptions">
+                        {{ i18n(labels.noResults) }}
+                        <span class="label tag is-info"
+                            v-if="taggable">
+                            {{ i18n(labels.addTag) }}
+                        </span>
+                    </a>
+                </template>
+            </dropdown>
         </template>
     </core-select>
 </template>
 
 <script>
-import vClickOutside from 'v-click-outside';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCheck, faAngleUp }
+import { faCheck }
     from '@fortawesome/free-solid-svg-icons';
+import { focus, clickOutside } from '@enso-ui/directives';
+import Dropdown from '@enso-ui/dropdown/bulma';
+import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/VueSelect.vue';
 import Tag from './Tag.vue';
 
-library.add([faCheck, faAngleUp]);
+library.add(faCheck);
 
 export default {
-    directives: {
-        clickOutside: vClickOutside.directive,
-    },
+    name: 'VueSelect',
 
-    components: { CoreSelect, Tag },
+    directives: { focus, clickOutside },
+
+    components: {
+        Dropdown, CoreSelect, DropdownIndicator, Tag,
+    },
 
     props: {
         hasError: {
@@ -154,18 +148,9 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-    .icon.angle {
-        transition: transform .300s ease;
-
-        &[aria-hidden="true"] {
-            transform: rotate(180deg);
-        }
-    }
-
-    .dropdown {
+<style lang="scss">
+    .dropdown.vue-select {
         width: 100%;
-
         .dropdown-trigger {
             width: 100%;
 
@@ -173,7 +158,7 @@ export default {
                 min-width: 1em;
             }
 
-            .control-input {
+            .dropdown-trigger-input {
                 justify-content: flex-start;
                 width: 100%;
                 min-height: 2.25em;
@@ -184,6 +169,7 @@ export default {
                 padding-right: calc(0.625em - 1px);
                 padding-bottom: calc(0.375em - 1px);
                 padding-left: calc(0.625em - 1px);
+                cursor: pointer;
 
                 &[disabled] {
                     border-color: inherit;
@@ -199,15 +185,14 @@ export default {
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     text-align: left;
-                    cursor: pointer;
 
                     .field.is-grouped.is-grouped-multiline {
-                        .select-input {
+                        .select-filter {
                             border: 0;
+                            padding-left: 0;
                             height: 1.4em;
-                            margin-top: 0.05em;
+                            margin-top: 0.1em;
                             box-shadow: unset;
-                            padding: 0;
                             -webkit-box-shadow: unset;
                             width: fit-content;
                             background-color: inherit;
@@ -227,12 +212,12 @@ export default {
                     .angle {
                         position: absolute;
                         top: 0.55rem;
-                        right: 0.6rem;
+                        right: 0.4rem;
                     }
 
                     .delete {
                         position: absolute;
-                        right: 1.7rem;
+                        right: 1.5rem;
                         top: 0.55rem;
                     }
 

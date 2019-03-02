@@ -10,6 +10,8 @@
 import VueSelect from './VueSelect.vue';
 
 export default {
+    name: 'VueSelect',
+
     components: { VueSelect },
 
     props: {

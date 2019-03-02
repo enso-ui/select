@@ -87,12 +87,12 @@ export default {
         optionList: v.options,
         loading: false,
         query: '',
-        visibleDropdown: false,
+        closedDropdown: true,
         position: null,
     }),
 
     computed: {
-        isServerSide() {
+        serverSide() {
             return this.source !== null;
         },
         filteredOptions() {
@@ -125,19 +125,19 @@ export default {
                 .find(option => this.valueMatchesOption(this.value, option));
         },
         visibleClearControl() {
-            return !this.disableClear && !this.loading && this.hasSelection
-                && !this.readonly && !this.disabled;
+            return !this.disableClear && !this.readonly && !this.disabled
+                && !this.loading && this.hasSelection;
         },
     },
 
     watch: {
+        query: 'fetch',
         options: {
             handler() {
                 this.optionList = this.options;
             },
             deep: true,
         },
-        query: 'fetch',
         params: {
             handler() {
                 this.fetch();
@@ -168,7 +168,7 @@ export default {
             this.$emit('input', value);
         },
         fetch() {
-            if (!this.isServerSide) {
+            if (!this.serverSide) {
                 return;
             }
 
@@ -206,7 +206,7 @@ export default {
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
 
-            this.$emit('input', value);
+            this.update(value);
         },
         valuesWhithinOptions() {
             return this.value.filter(val => this.optionList
@@ -227,23 +227,17 @@ export default {
             return this.displayLabel(option).toLowerCase()
                 .indexOf(this.query.toLowerCase()) >= 0;
         },
-        showDropdown() {
+        openDropdown() {
             if (this.readonly || this.disabled) {
                 return;
             }
 
-            if (!this.hasOptions) {
-                this.fetch();
-                return;
-            }
-
-            this.visibleDropdown = true;
-            this.$nextTick(() => this.$el.querySelector('input').focus());
+            this.closedDropdown = false;
             this.position = 0;
         },
-        hideDropdown() {
+        closeDropdown() {
             this.query = '';
-            this.visibleDropdown = false;
+            this.closedDropdown = true;
             this.position = null;
         },
         select() {
@@ -268,17 +262,15 @@ export default {
                 this.value.push(this.optionValue(option));
             }
 
-            this.query = '';
-            this.$el.querySelector('input').focus();
-            this.$emit('input', this.value);
+            this.update(this.value);
         },
         handleSingleSelection(option) {
-            this.hideDropdown();
+            this.closeDropdown();
 
             const selection = !this.disableClear
                 && this.valueMatchesOption(this.value, option);
 
-            this.$emit('input', selection ? null : this.optionValue(option));
+            this.update(selection ? null : this.optionValue(option));
         },
         optionValue(option) {
             return this.objects
@@ -286,7 +278,7 @@ export default {
                 : option[this.trackBy];
         },
         clear() {
-            this.$emit('input', this.multiple ? [] : null);
+            this.update(this.multiple ? [] : null);
         },
         highlight(label) {
             return label.replace(
@@ -294,13 +286,12 @@ export default {
             );
         },
         deselect(value) {
-            console.log(value);
             const index = this.value
                 .findIndex(val => val === value[this.trackBy]);
 
             this.value.splice(index, 1);
             this.$emit('deselect', value);
-            this.$emit('input', this.value);
+            this.update(this.value);
         },
         isSelected(option) {
             return this.multiple
@@ -363,39 +354,34 @@ export default {
 
     render() {
         return this.$scopedSlots.default({
-            disabled: this.disabled,
-            readonly: this.readonly,
             multiple: this.multiple,
             taggable: this.taggable,
             loading: this.loading,
+            closedDropdown: this.closedDropdown,
             disableClear: this.disableClear,
-            visibleDropdown: this.visibleDropdown,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
-            hasSelection: this.hasSelection,
-            trackBy: this.trackBy,
             options: this.filteredOptions,
+            hasSelection: this.hasSelection,
             selection: this.selection,
+            trackBy: this.trackBy,
             position: this.position,
             i18n: this.i18n,
             displayLabel: this.displayLabel,
             isSelected: this.isSelected,
             highlight: this.highlight,
-            updatePosition: this.updatePosition,
-            select: this.select,
-            deselect: this.deselect,
-            hideDropdown: this.hideDropdown,
-            clear: this.clear,
-            selectBindings: {
-                disabled: this.disabled,
-                readonly: this.readonly,
+            dropdownBindings: {
+                disabled: this.readonly || this.disabled || !this.hasOptions,
+                manual: this.multiple,
             },
-            selectEvents: {
-                click: this.showDropdown,
-                focus: this.showDropdown,
-                keypress: (e) => {
-                    if (e.key === 'Enter') {
-                        this.showDropdown();
+            dropdownEvents: {
+                open: this.openDropdown,
+                close: this.closeDropdown,
+            },
+            dropdownTriggerEvents: {
+                click: (e) => {
+                    if (!this.hasOptions) {
+                        this.fetch();
                     }
                 },
             },
@@ -406,9 +392,6 @@ export default {
                 input: e => (this.query = e.target.value),
                 keydown: (e) => {
                     switch (e.key) {
-                    case 'Escape': case 'Tab':
-                        this.hideDropdown();
-                        break;
                     case 'ArrowDown':
                         this.keyDown();
                         break;
@@ -422,9 +405,23 @@ export default {
                     default:
                         break;
                     }
-                    if (e.key === 'Escape') {
-                        this.hideDropdown();
-                    }
+                },
+            },
+            itemEvents: index => ({
+                click: this.select,
+                mouseenter: () => this.updatePosition(index),
+            }),
+            selectionBindings: value => ({
+                disabled: this.disabled || this.readonly,
+                label: this.displayLabel(value),
+            }),
+            selectionEvents: value => ({
+                deselect: () => this.deselect(value),
+            }),
+            clearEvents: {
+                mousedown: (e) => {
+                    this.clear();
+                    e.preventDefault();
                 },
             },
             taggableEvents: {

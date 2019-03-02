@@ -1,5 +1,5 @@
 <template>
-    <div class="tags has-addons">
+    <div class="vue-select tags has-addons">
         <span class="tag is-link">
             {{ label }}
         </span>
@@ -26,8 +26,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-    .tags {
+<style lang="scss">
+    .vue-select.tags {
         margin-right: 0.3em;
 
         &:last-child {
@@ -45,5 +45,4 @@ export default {
             }
         }
     }
-
 </style>
