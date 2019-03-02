@@ -267,10 +267,16 @@ export default {
         handleSingleSelection(option) {
             this.closeDropdown();
 
-            const selection = !this.disableClear
-                && this.valueMatchesOption(this.value, option);
+            const selection = this.valueMatchesOption(this.value, option);
 
-            this.update(selection ? null : this.optionValue(option));
+            if (!selection) {
+                this.update(this.optionValue(option));
+                return;
+            }
+
+            if (!this.disableClear) {
+                this.update(null);
+            }
         },
         optionValue(option) {
             return this.objects
@@ -361,6 +367,7 @@ export default {
             disableClear: this.disableClear,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
+            query: this.query,
             options: this.filteredOptions,
             hasSelection: this.hasSelection,
             selection: this.selection,

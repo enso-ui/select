@@ -3,10 +3,10 @@
         v-on="$listeners">
         <template v-slot:default="{
                 multiple, taggable, loading, closedDropdown, disableClear, visibleClearControl,
-                hasOptions, options, hasSelection, selection, trackBy, position, i18n, displayLabel,
-                isSelected, highlight, dropdownBindings, dropdownEvents, dropdownTriggerEvents,
-                filterEvents, filterBindings, itemEvents, selectionBindings, selectionEvents,
-                clearEvents, taggableEvents,
+                hasOptions, query, options, hasSelection, selection, trackBy, position, i18n,
+                displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
+                dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
+                selectionEvents, clearEvents, taggableEvents,
             }">
             <dropdown class="vue-select"
                 width="100%"
@@ -37,19 +37,21 @@
                                         </slot>
                                     </div>
                                 </template>
-                                <span v-else-if="hasOptions">
-                                    {{ i18n(placeholder) }}
-                                </span>
-                                <span v-else>
+                                <span v-else-if="!hasOptions && !query">
                                     {{ i18n(labels.noOptions) }}
                                 </span>
-                                <input class="input select-filter"
-                                    type="text"
-                                    :placeholder="i18n(placeholder)"
-                                    v-bind="filterBindings"
-                                    v-on="filterEvents"
-                                    v-if="!closedDropdown"
-                                    v-focus>
+                                <template v-if="hasOptions || query">
+                                    <input class="input select-filter"
+                                        type="text"
+                                        :placeholder="i18n(placeholder)"
+                                        v-bind="filterBindings"
+                                        v-on="filterEvents"
+                                        v-if="!closedDropdown"
+                                        v-focus>
+                                    <span v-else-if="!hasSelection">
+                                        {{ i18n(placeholder) }}
+                                    </span>
+                                </template>
                             </div>
                             <span class="is-loading"
                                 v-if="loading"/>
