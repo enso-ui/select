@@ -6,47 +6,54 @@
                 hasSelection, searchable, query, options, selection, trackBy, currentIndex,
                 i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
-                selectionEvents, clearEvents, taggableEvents,
+                selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
             <dropdown class="vue-select"
                 width="100%"
-                height="12em"
+                height="12.3em"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents">
-                <template v-slot:label>
-                    <div class="selection">
-                        <div class="field is-grouped is-grouped-multiline"
-                            v-if="hasSelection">
-                            <div class="control">
-                                <slot name="selection"
-                                    :selection="selection"
-                                    :selection-bindings="selectionBindings"
-                                    :selection-events="selectionEvents"
-                                    :track-by="trackBy">
-                                    <template v-if="multiple">
-                                        <tag v-for="value in selection"
-                                            :key="value[trackBy]"
-                                            v-bind="selectionBindings(value)"
-                                            v-on="selectionEvents(value)"/>
-                                    </template>
-                                    <template v-else>
-                                        {{ displayLabel(selection) }}
-                                    </template>
-                                </slot>
+                <template v-slot:trigger="{ open, visible }">
+                    <button class="button input"
+                        type="button"
+                        @click="open"
+                        v-on="keyboardEvents"
+                        @keydown.enter.prevent="open">
+                        <div class="selection">
+                            <div class="field is-grouped is-grouped-multiline"
+                                v-if="hasSelection">
+                                <div class="control">
+                                    <slot name="selection"
+                                        :selection="selection"
+                                        :selection-bindings="selectionBindings"
+                                        :selection-events="selectionEvents"
+                                        :track-by="trackBy">
+                                        <template v-if="multiple">
+                                            <tag v-for="value in selection"
+                                                :key="value[trackBy]"
+                                                v-bind="selectionBindings(value)"
+                                                v-on="selectionEvents(value)"/>
+                                        </template>
+                                        <template v-else>
+                                            {{ displayLabel(selection) }}
+                                        </template>
+                                    </slot>
+                                </div>
                             </div>
+                            <template v-else-if="!hasOptions && !query">
+                                {{ i18n(labels.noOptions) }}
+                            </template>
+                            <template v-else-if="!hasSelection">
+                                {{ i18n(placeholder) }}
+                            </template>
+                            <span class="is-loading"
+                                v-if="loading"/>
+                            <a class="delete is-small"
+                                v-on="clearEvents"
+                                v-if="visibleClearControl"/>
                         </div>
-                        <template v-else-if="!hasOptions && !query">
-                            {{ i18n(labels.noOptions) }}
-                        </template>
-                        <template v-else-if="!hasSelection">
-                            {{ i18n(placeholder) }}
-                        </template>
-                        <span class="is-loading"
-                            v-if="loading"/>
-                        <a class="delete is-small"
-                            v-on="clearEvents"
-                            v-if="visibleClearControl"/>
-                    </div>
+                        <dropdown-indicator :open="visible"/>
+                    </button>
                 </template>
                 <template v-slot:controls
                     v-if="searchable">
@@ -55,7 +62,7 @@
                             type="text"
                             :placeholder="i18n(labels.search)"
                             v-bind="filterBindings"
-                            v-on="filterEvents"
+                            v-on="{ ...filterEvents, ...keyboardEvents }"
                             v-focus>
                     </div>
                 </template>
@@ -108,6 +115,7 @@ import { faCheck }
     from '@fortawesome/free-solid-svg-icons';
 import { focus, clickOutside } from '@enso-ui/directives';
 import Dropdown from '@enso-ui/dropdown/bulma';
+import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/VueSelect.vue';
 import Tag from './Tag.vue';
 
@@ -118,7 +126,9 @@ export default {
 
     directives: { focus, clickOutside },
 
-    components: { CoreSelect, Dropdown, Tag },
+    components: {
+ CoreSelect, Dropdown, DropdownIndicator, Tag 
+},
 
     props: {
         hasError: {

@@ -111,7 +111,7 @@ export default {
             return this.filteredOptions.length > 0;
         },
         searchable() {
-            return this.options.length > 6;
+            return this.serverSide || this.optionList.length > 6;
         },
         selection() {
             return this.multiple
@@ -380,6 +380,8 @@ export default {
             },
             filterEvents: {
                 input: e => (this.query = e.target.value),
+            },
+            keyboardEvents: {
                 keydown: (e) => {
                     switch (e.key) {
                     case 'ArrowDown':
