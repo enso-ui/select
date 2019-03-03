@@ -15,9 +15,10 @@
                 v-on="dropdownEvents">
                 <template v-slot:trigger="{ open, visible }">
                     <button class="button input"
+                        :class="{ 'has-error': hasError }"
                         type="button"
                         @click="open"
-                        v-on="keyboardEvents"
+                        v-on="{ ...dropdownTriggerEvents, ...keyboardEvents}"
                         @keydown.enter.prevent="open">
                         <div class="selection">
                             <div class="field is-grouped is-grouped-multiline"
@@ -127,8 +128,8 @@ export default {
     directives: { focus, clickOutside },
 
     components: {
- CoreSelect, Dropdown, DropdownIndicator, Tag 
-},
+        CoreSelect, Dropdown, DropdownIndicator, Tag,
+    },
 
     props: {
         hasError: {
