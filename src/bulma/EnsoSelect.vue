@@ -10,7 +10,7 @@
 import VueSelect from './VueSelect.vue';
 
 export default {
-    name: 'VueSelect',
+    name: 'EnsoSelect',
 
     components: { VueSelect },
 

@@ -87,18 +87,12 @@ export default {
         optionList: v.options,
         loading: false,
         query: '',
-        closedDropdown: true,
-        position: null,
+        currentIndex: 0,
     }),
 
     computed: {
         serverSide() {
             return this.source !== null;
-        },
-        filteredOptions() {
-            return this.query
-                ? this.optionList.filter(option => this.matchesQuery(option))
-                : this.optionList;
         },
         hasSelection() {
             return this.multiple
@@ -108,21 +102,23 @@ export default {
         hasOptions() {
             return this.optionList.length > 0;
         },
+        filteredOptions() {
+            return this.query
+                ? this.optionList.filter(option => this.matchesQuery(option))
+                : this.optionList;
+        },
         hasFilteredOptions() {
             return this.filteredOptions.length > 0;
         },
+        searchable() {
+            return this.options.length > 6;
+        },
         selection() {
-            if (!this.hasOptions) {
-                return null;
-            }
-
-            if (this.multiple) {
-                return this.optionList.filter(option => this.value
-                    .some(val => this.valueMatchesOption(val, option)));
-            }
-
-            return this.optionList
-                .find(option => this.valueMatchesOption(this.value, option));
+            return this.multiple
+                ? this.optionList.filter(option => this.value
+                    .some(val => this.valueMatchesOption(val, option)))
+                : this.optionList
+                    .find(option => this.valueMatchesOption(this.value, option));
         },
         visibleClearControl() {
             return !this.disableClear && !this.readonly && !this.disabled
@@ -164,9 +160,6 @@ export default {
     },
 
     methods: {
-        update(value) {
-            this.$emit('input', value);
-        },
         fetch() {
             if (!this.serverSide) {
                 return;
@@ -201,6 +194,9 @@ export default {
                 this.updateSelection();
             }
         },
+        update(value) {
+            this.$emit('input', value);
+        },
         updateSelection() {
             const value = this.multiple
                 ? this.valuesWhithinOptions()
@@ -227,25 +223,16 @@ export default {
             return this.displayLabel(option).toLowerCase()
                 .indexOf(this.query.toLowerCase()) >= 0;
         },
-        openDropdown() {
-            if (this.readonly || this.disabled) {
-                return;
-            }
-
-            this.closedDropdown = false;
-            this.position = 0;
-        },
-        closeDropdown() {
+        reset() {
             this.query = '';
-            this.closedDropdown = true;
-            this.position = null;
+            this.currentIndex = 0;
         },
         select() {
             if (!this.hasFilteredOptions) {
                 return;
             }
 
-            const option = this.filteredOptions[this.position];
+            const option = this.filteredOptions[this.currentIndex];
 
             if (this.multiple) {
                 this.handleMultipleSelection(option);
@@ -265,7 +252,7 @@ export default {
             this.update(this.value);
         },
         handleSingleSelection(option) {
-            this.closeDropdown();
+            this.reset();
 
             const selection = this.valueMatchesOption(this.value, option);
 
@@ -304,46 +291,42 @@ export default {
                 ? this.value.some(val => this.valueMatchesOption(val, option))
                 : this.valueMatchesOption(this.value, option);
         },
-        keyDown() {
-            if (!this.hasFilteredOptions || this.loading
-                || this.position === this.filteredOptions.length - 1) {
+        nextIndex() {
+            if (this.loading || !this.hasFilteredOptions) {
                 return;
             }
 
-            this.position = this.position !== null
-                ? ++this.position
-                : 0;
+            if (++this.currentIndex > this.filteredOptions.length - 1) {
+                this.currentIndex = 0;
+            }
 
-            this.scroll();
+            this.scrollIntoView();
         },
-        keyUp() {
-            if (this.loading || !this.position) {
+        previousIndex() {
+            if (this.loading || !this.hasFilteredOptions) {
                 return;
             }
 
-            this.position--;
-            this.scroll();
-        },
-        updatePosition(index) {
-            this.position = index;
-        },
-        scroll() {
-            const dropdown = this.$el.querySelector('.dropdown-content');
-            const option = this.$el.querySelectorAll('.dropdown-item')[this.position];
-
-            if (option.offsetTop < dropdown.scrollTop) {
-                dropdown.scrollTop -= (dropdown.scrollTop - option.offsetTop);
-                return;
+            if (--this.currentIndex < 0) {
+                this.currentIndex = this.filteredOptions.length - 1;
             }
 
-            const dropdownBottom = dropdown.scrollTop + dropdown.clientHeight;
-            const optionBottom = option.offsetTop + option.clientHeight;
+            this.scrollIntoView();
+        },
+        updateCurrentIndex(index) {
+            this.currentIndex = index;
+        },
+        scrollIntoView() {
+            const options = this.$el.querySelectorAll('.dropdown-item:not(.search)');
 
-            if (optionBottom > dropdownBottom) {
-                dropdown.scrollTop += (optionBottom - dropdownBottom);
-            }
+            options[this.currentIndex]
+                .scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         },
         displayLabel(option) {
+            if (!option) {
+                return null;
+            }
+
             const displayLabel = this.label.split('.')
                 .reduce((result, property) => result[property], option);
 
@@ -363,16 +346,16 @@ export default {
             multiple: this.multiple,
             taggable: this.taggable,
             loading: this.loading,
-            closedDropdown: this.closedDropdown,
             disableClear: this.disableClear,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
+            searchable: this.searchable,
             query: this.query,
             options: this.filteredOptions,
             hasSelection: this.hasSelection,
             selection: this.selection,
             trackBy: this.trackBy,
-            position: this.position,
+            currentIndex: this.currentIndex,
             i18n: this.i18n,
             displayLabel: this.displayLabel,
             isSelected: this.isSelected,
@@ -382,8 +365,7 @@ export default {
                 manual: this.multiple,
             },
             dropdownEvents: {
-                open: this.openDropdown,
-                close: this.closeDropdown,
+                close: this.reset,
             },
             dropdownTriggerEvents: {
                 click: (e) => {
@@ -400,10 +382,12 @@ export default {
                 keydown: (e) => {
                     switch (e.key) {
                     case 'ArrowDown':
-                        this.keyDown();
+                        this.nextIndex();
+                        e.preventDefault();
                         break;
                     case 'ArrowUp':
-                        this.keyUp();
+                        this.previousIndex();
+                        e.preventDefault();
                         break;
                     case 'Enter':
                         this.select();
@@ -416,7 +400,7 @@ export default {
             },
             itemEvents: index => ({
                 click: this.select,
-                mouseenter: () => this.updatePosition(index),
+                mouseenter: () => this.updateCurrentIndex(index),
             }),
             selectionBindings: value => ({
                 disabled: this.disabled || this.readonly,
