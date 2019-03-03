@@ -361,7 +361,8 @@ export default {
             isSelected: this.isSelected,
             highlight: this.highlight,
             dropdownBindings: {
-                disabled: this.readonly || this.disabled || !this.hasOptions,
+                disabled: this.readonly || this.disabled
+                    || (!this.hasOptions && !this.query),
                 manual: this.multiple,
             },
             dropdownEvents: {

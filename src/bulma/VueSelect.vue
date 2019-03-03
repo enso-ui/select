@@ -2,10 +2,10 @@
     <core-select v-bind="$attrs"
         v-on="$listeners">
         <template v-slot:default="{
-                multiple, taggable, loading, disableClear, visibleClearControl, hasOptions, options,
-                query, hasSelection, searchable, selection, trackBy, currentIndex, i18n, displayLabel,
-                isSelected, highlight, dropdownBindings, dropdownEvents, dropdownTriggerEvents, filterEvents,
-                filterBindings, itemEvents, selectionBindings,
+                multiple, taggable, loading, disableClear, visibleClearControl, hasOptions,
+                hasSelection, searchable, query, options, selection, trackBy, currentIndex,
+                i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
+                dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents,
             }">
             <dropdown class="vue-select"
@@ -133,7 +133,7 @@ export default {
                 noOptions: 'No options available',
                 noResults: 'No search results found',
                 addTag: 'Add option',
-                search: 'Search...'
+                search: 'Search...',
             }),
         },
         placeholder: {
