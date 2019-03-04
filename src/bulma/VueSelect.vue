@@ -12,15 +12,15 @@
                 width="100%"
                 height="12.3em"
                 v-bind="dropdownBindings"
-                v-on="dropdownEvents">
+                v-on="dropdownEvents"
+                :manual="multiple">
                 <template v-slot:trigger="{ open, visible }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
                         @click="open"
-                        v-on="{ ...dropdownTriggerEvents, ...keyboardEvents}"
-                        @keydown.enter.prevent="open">
-                        <div class="selection">
+                        v-on="dropdownTriggerEvents">
+                        <div class="control-display">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
                                 <div class="control">
@@ -44,7 +44,7 @@
                             <template v-else-if="!hasOptions && !query">
                                 {{ i18n(labels.noOptions) }}
                             </template>
-                            <template v-else-if="!hasSelection">
+                            <template v-else>
                                 {{ i18n(placeholder) }}
                             </template>
                             <span class="is-loading"
@@ -161,7 +161,7 @@ export default {
             min-height: 2.25em;
             height: unset;
 
-            .selection {
+            .control-display {
                 max-width: calc(100% - 2.5em);
                 overflow-x: hidden;
                 white-space: nowrap;
