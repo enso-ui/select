@@ -79,7 +79,7 @@ export default {
         },
         value: {
             type: null,
-            default: this.multiple ? [] : null,
+            default: () => (this.multiple ? [] : null),
         },
     },
 

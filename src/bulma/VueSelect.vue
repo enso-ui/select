@@ -19,7 +19,7 @@
                         :class="{ 'has-error': hasError }"
                         type="button"
                         @click="open"
-                        v-on="dropdownTriggerEvents">
+                        v-on="{ ...dropdownTriggerEvents, ...keyboardEvents }">
                         <div class="control-display">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
