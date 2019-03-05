@@ -3,14 +3,14 @@
         v-on="$listeners">
         <template v-slot:default="{
                 multiple, taggable, loading, disableClear, visibleClearControl, hasOptions,
-                hasSelection, searchable, query, options, selection, trackBy, currentIndex,
+                hasSelection, query, options, selection, trackBy, currentIndex,
                 i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
             <dropdown class="vue-select"
                 width="100%"
-                height="12.3em"
+                height="12.4em"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
                 :manual="multiple">
@@ -19,7 +19,7 @@
                         :class="{ 'has-error': hasError }"
                         type="button"
                         @click="open"
-                        v-on="{ ...dropdownTriggerEvents, ...keyboardEvents }">
+                        v-on="dropdownTriggerEvents">
                         <div class="control-display">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
@@ -56,8 +56,7 @@
                         <dropdown-indicator :open="visible"/>
                     </button>
                 </template>
-                <template v-slot:controls
-                    v-if="searchable">
+                <template v-slot:controls>
                     <div class="dropdown-item search">
                         <input class="input"
                             type="text"
@@ -172,7 +171,7 @@ export default {
                     margin-bottom: unset;
                 }
 
-                .field.is-grouped.is-grouped-multiline {                    
+                .field.is-grouped.is-grouped-multiline {
                     .control:last-child,
                     .control:not(:last-child) {
                         margin-bottom: 0;

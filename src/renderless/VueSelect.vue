@@ -110,9 +110,6 @@ export default {
         hasFilteredOptions() {
             return this.filteredOptions.length > 0;
         },
-        searchable() {
-            return this.serverSide || this.optionList.length > 6;
-        },
         selection() {
             return this.multiple
                 ? this.optionList.filter(option => this.value
@@ -349,7 +346,6 @@ export default {
             disableClear: this.disableClear,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
-            searchable: this.searchable,
             query: this.query,
             options: this.filteredOptions,
             hasSelection: this.hasSelection,
@@ -380,6 +376,7 @@ export default {
             },
             filterEvents: {
                 input: e => (this.query = e.target.value),
+                click: e => e.stopPropagation(),
             },
             keyboardEvents: {
                 keydown: (e) => {
