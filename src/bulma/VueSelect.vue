@@ -168,7 +168,11 @@ export default {
                 text-overflow: ellipsis;
                 text-align: left;
 
-                .field.is-grouped.is-grouped-multiline {
+                .field.is-grouped.is-grouped-multiline:last-child {
+                    margin-bottom: unset;
+                }
+
+                .field.is-grouped.is-grouped-multiline {                    
                     .control:last-child,
                     .control:not(:last-child) {
                         margin-bottom: 0;
