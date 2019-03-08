@@ -27,7 +27,7 @@ npm i @enso-ui/select
 Import the desired component(s):
 ```js
 import { VueSelect, EnsoSelect } from '@enso-ui/select/bulma';
-import VueSelect from '@enso-ui/select/renderless';
+import CoreSelect from '@enso-ui/select/renderless';
 ```
 
 ### Exports

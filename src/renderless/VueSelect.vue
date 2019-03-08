@@ -2,6 +2,8 @@
 import debounce from 'lodash/debounce';
 
 export default {
+    name: 'CoreSelect',
+
     props: {
         customParams: {
             type: Object,
