@@ -59,7 +59,6 @@
                 <template v-slot:controls>
                     <div class="dropdown-item search">
                         <input class="input"
-                            type="text"
                             :placeholder="i18n(labels.search)"
                             v-bind="filterBindings"
                             v-on="{ ...filterEvents, ...keyboardEvents }"
