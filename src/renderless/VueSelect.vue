@@ -182,6 +182,7 @@ export default {
                 pivotParams: this.pivotParams,
                 customParams: this.customParams,
                 query: this.query,
+                trackBy: this.trackBy,
                 value: this.value,
                 paginate: this.paginate,
             };
