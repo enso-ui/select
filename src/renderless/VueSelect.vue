@@ -245,8 +245,10 @@ export default {
 
             if (index >= 0) {
                 this.value.splice(index, 1);
+                this.$emit('deselect', option[this.trackBy]);
             } else {
                 this.value.push(this.optionValue(option));
+                this.$emit('select', option[this.trackBy]);
             }
 
             this.update(this.value);
@@ -258,11 +260,13 @@ export default {
 
             if (!selection) {
                 this.update(this.optionValue(option));
+                this.$emit('select', option[this.trackBy]);
                 return;
             }
 
             if (!this.disableClear) {
                 this.update(null);
+                this.$emit('deselect', option[this.trackBy]);
             }
         },
         optionValue(option) {
@@ -272,6 +276,7 @@ export default {
         },
         clear() {
             this.update(this.multiple ? [] : null);
+            this.$emit('clear');
         },
         highlight(label) {
             return label.replace(
@@ -283,8 +288,8 @@ export default {
                 .findIndex(val => val === value[this.trackBy]);
 
             this.value.splice(index, 1);
-            this.$emit('deselect', value);
             this.update(this.value);
+            this.$emit('deselect', value);
         },
         isSelected(option) {
             return this.multiple
