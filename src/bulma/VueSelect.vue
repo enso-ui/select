@@ -9,8 +9,6 @@
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
             <dropdown class="vue-select"
-                width="100%"
-                height="12.4em"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
                 :manual="multiple">
@@ -155,61 +153,78 @@ export default {
 
 <style lang="scss">
     .dropdown.vue-select {
-        .button.input {
-            min-height: 2.25em;
-            height: unset;
+        width: 100%;
 
-            .control-display {
-                max-width: calc(100% - 2.5em);
-                overflow-x: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                text-align: left;
+        .dropdown-trigger {
+            width: 100%;
 
-                .field.is-grouped.is-grouped-multiline:last-child {
-                    margin-bottom: unset;
-                }
+            .button.input {
+                min-height: 2.25em;
+                height: unset;
+                width: 100%;
 
-                .field.is-grouped.is-grouped-multiline {
-                    .control:last-child,
-                    .control:not(:last-child) {
-                        margin-bottom: 0;
-                        display: contents;
+                .control-display {
+                    max-width: calc(100% - 2.5em);
+                    overflow-x: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    text-align: left;
 
-                        .tags:not(:last-child) {
+                    .field.is-grouped.is-grouped-multiline:last-child {
+                        margin-bottom: unset;
+                    }
+
+                    .field.is-grouped.is-grouped-multiline {
+                        .control:last-child,
+                        .control:not(:last-child) {
                             margin-bottom: 0;
+                            display: contents;
+
+                            .tags:not(:last-child) {
+                                margin-bottom: 0;
+                            }
                         }
                     }
-                }
 
-                .delete {
-                    position: absolute;
-                    right: 1.5rem;
-                    top: 0.55rem;
-                }
+                    .delete {
+                        position: absolute;
+                        right: 1.5rem;
+                        top: 0.55rem;
+                    }
 
-                .is-loading {
-                    -webkit-animation: spinAround .5s infinite linear;
-                    animation: spinAround .5s infinite linear;
-                    border: 2px solid #dbdbdb;
-                    border-radius: 290486px;
-                    border-right-color: transparent;
-                    border-top-color: transparent;
-                    content: "";
-                    display: block;
-                    height: 1em;
-                    position: relative;
-                    width: 1em;
-                    position: absolute!important;
-                    right: 1.7rem;
-                    top: .55em;
-                    z-index: 4;
+                    .is-loading {
+                        -webkit-animation: spinAround .5s infinite linear;
+                        animation: spinAround .5s infinite linear;
+                        border: 2px solid #dbdbdb;
+                        border-radius: 290486px;
+                        border-right-color: transparent;
+                        border-top-color: transparent;
+                        content: "";
+                        display: block;
+                        height: 1em;
+                        position: relative;
+                        width: 1em;
+                        position: absolute!important;
+                        right: 1.7rem;
+                        top: .55em;
+                        z-index: 4;
+                    }
                 }
             }
         }
 
         .dropdown-menu {
+            width: 100%;
+
             .dropdown-content {
+                width: 100%;
+
+                .options {
+                    width: 100%;
+                    height: 12.4em;
+                    overflow: auto;
+                }
+
                 .dropdown-item {
                     text-overflow: ellipsis;
                     overflow-x: hidden;

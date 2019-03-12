@@ -202,7 +202,9 @@ export default {
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
 
-            this.update(value);
+            if (JSON.stringify(value) !== JSON.stringify(this.value)) {
+                this.update(value);
+            }
         },
         valuesWhithinOptions() {
             return this.value.filter(val => this.optionList
@@ -373,7 +375,7 @@ export default {
                 close: this.reset,
             },
             dropdownTriggerEvents: {
-                click: (e) => {
+                click: () => {
                     if (!this.hasOptions) {
                         this.fetch();
                     }
