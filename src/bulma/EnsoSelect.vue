@@ -22,5 +22,11 @@ export default {
             default: null,
         },
     },
+
+    methods: {
+        clear() {
+            this.$refs.select.clear();
+        },
+    },
 };
 </script>

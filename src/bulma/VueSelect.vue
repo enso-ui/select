@@ -1,6 +1,7 @@
 <template>
     <core-select v-bind="$attrs"
-        v-on="$listeners">
+        v-on="$listeners"
+        ref="select">
         <template v-slot:default="{
                 multiple, taggable, loading, disableClear, visibleClearControl, hasOptions,
                 hasSelection, query, options, selection, trackBy, currentIndex,
@@ -146,6 +147,12 @@ export default {
         placeholder: {
             type: String,
             default: 'Pick an option',
+        },
+    },
+
+    methods: {
+        clear() {
+            this.$refs.select.clear();
         },
     },
 };
