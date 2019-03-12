@@ -221,7 +221,7 @@ export default {
 
                 .options {
                     width: 100%;
-                    height: 12.4em;
+                    max-height: 12.4em;
                     overflow: auto;
                 }
 
