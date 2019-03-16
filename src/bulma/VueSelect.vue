@@ -58,6 +58,7 @@
                 <template v-slot:controls>
                     <div class="dropdown-item search">
                         <input class="input"
+                            type="text"
                             :placeholder="i18n(labels.search)"
                             v-bind="filterBindings"
                             v-on="{ ...filterEvents, ...keyboardEvents }"
@@ -114,7 +115,7 @@ import { faCheck }
 import { focus, clickOutside } from '@enso-ui/directives';
 import Dropdown from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
-import CoreSelect from '../renderless/VueSelect.vue';
+import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
 
 library.add(faCheck);

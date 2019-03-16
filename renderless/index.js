@@ -1,3 +1,3 @@
-import VueSelect from '../src/renderless/VueSelect.vue';
+import CoreSelect from '../src/renderless/CoreSelect.vue';
 
-export default VueSelect;
+export default CoreSelect;
