@@ -9,6 +9,7 @@
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
+            <s-vue-select :isRTL='!isRTL'>
             <dropdown class="vue-select"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
@@ -104,6 +105,7 @@
                     </a>
                 </template>
             </dropdown>
+            </s-vue-select>
         </template>
     </core-select>
 </template>
@@ -117,6 +119,8 @@ import Dropdown from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
+import {directionSwitch} from '../mixins/directionSwitch';
+import SVueSelect from "./styled/SVueSelect";
 
 library.add(faCheck);
 
@@ -125,8 +129,10 @@ export default {
 
     directives: { focus, clickOutside },
 
+    mixins: [ directionSwitch ],
+
     components: {
-        CoreSelect, Dropdown, DropdownIndicator, Tag,
+        CoreSelect, Dropdown, DropdownIndicator, Tag, SVueSelect
     },
 
     props: {
@@ -176,7 +182,7 @@ export default {
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    text-align: left;
+                    // text-align: left;
 
                     .field.is-grouped.is-grouped-multiline:last-child {
                         margin-bottom: unset;
@@ -196,7 +202,7 @@ export default {
 
                     .delete {
                         position: absolute;
-                        right: 1.5rem;
+                        // right: 1.5rem;
                         top: 0.55rem;
                     }
 
@@ -205,7 +211,7 @@ export default {
                         animation: spinAround .5s infinite linear;
                         border: 2px solid #dbdbdb;
                         border-radius: 290486px;
-                        border-right-color: transparent;
+                        // border-right-color: transparent;
                         border-top-color: transparent;
                         content: "";
                         display: block;
@@ -213,7 +219,7 @@ export default {
                         position: relative;
                         width: 1em;
                         position: absolute!important;
-                        right: 1.7rem;
+                        // right: 1.7rem;
                         top: .55em;
                         z-index: 4;
                     }
@@ -253,13 +259,13 @@ export default {
                         padding: 0.3rem;
                         height: 1.3rem;
                         z-index: 1;
-                        right: 0.6rem;
+                        // right: 0.6rem;
                     }
 
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
-                        right: 0.6rem;
+                        // right: 0.6rem;
                     }
                 }
             }

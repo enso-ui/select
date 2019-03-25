@@ -1,17 +1,26 @@
 <template>
-    <div class="vue-select tags has-addons">
+    <s-tag class="vue-select tags has-addons" :isRTL='isRTL'>
         <span class="tag is-link">
             {{ label }}
         </span>
         <a class="tag is-delete"
             @click="$emit('deselect')"
             v-if="!disabled"/>
-    </div>
+    </s-tag>
 </template>
 
 <script>
+import {directionSwitch} from '../mixins/directionSwitch';
+import STag from "./styled/STag";
+
 export default {
     name: 'Tag',
+
+    mixins: [ directionSwitch ],
+
+    components:{
+        STag
+    },
 
     props: {
         label: {
@@ -28,7 +37,7 @@ export default {
 
 <style lang="scss">
     .vue-select.tags {
-        margin-right: 0.3em;
+        /* margin-right: 0.3em; */
 
         &:last-child {
             margin-bottom: 0;
