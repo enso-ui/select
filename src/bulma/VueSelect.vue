@@ -13,6 +13,7 @@
             <dropdown class="vue-select"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
+                :isRTL='!isRTL'
                 :manual="multiple">
                 <template v-slot:trigger="{ open, visible }">
                     <button class="button input"
