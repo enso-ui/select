@@ -33,6 +33,7 @@
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
                                                 :key="value[trackBy]"
+                                                :isRTL='isRTL'
                                                 v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>

@@ -5,12 +5,9 @@ const styleProps = {
     };
 
 const STag = styled('div', styleProps)`
-
-.vue-select.tags {
-    // margin-right: 0.3em;
-    // margin-${props => props.isRTL ? 'left' : 'right'}: 0.3em;
-  }
-
+[class*='vue-select tags'] {
+    ${props => props.isRTL ? 'margin-left' : 'margin-right'}: 0.3em;
+}
 `;
 
 export default STag;

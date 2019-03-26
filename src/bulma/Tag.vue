@@ -1,11 +1,13 @@
 <template>
-    <s-tag class="vue-select tags has-addons" :isRTL='isRTL'>
-        <span class="tag is-link">
-            {{ label }}
-        </span>
-        <a class="tag is-delete"
-            @click="$emit('deselect')"
-            v-if="!disabled"/>
+    <s-tag :isRTL='isRTL'>
+        <div class="vue-select tags has-addons">
+            <span class="tag is-link">
+                {{ label }}
+            </span>
+            <a class="tag is-delete"
+                @click="$emit('deselect')"
+                v-if="!disabled"/>
+        </div>
     </s-tag>
 </template>
 
