@@ -42,6 +42,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.1",
     "bulma": "^0.7.2",
     "lodash": "^4.17.10",
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "vue-styled-components": "^1.4.4"
   }
 }
