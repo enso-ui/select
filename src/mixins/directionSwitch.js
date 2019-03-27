@@ -1,9 +1,10 @@
-export const directionSwitch = {
-
-    props:{
+const directionSwitch = {
+    props: {
         isRTL: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
-  }
+};
+
+export default directionSwitch;
