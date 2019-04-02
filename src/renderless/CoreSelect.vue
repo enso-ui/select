@@ -230,7 +230,7 @@ export default {
             this.currentIndex = 0;
         },
         select() {
-            if (!this.hasFilteredOptions) {
+            if (!this.hasFilteredOptions || this.loading) {
                 return;
             }
 
