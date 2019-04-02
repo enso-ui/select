@@ -12,13 +12,10 @@
 </template>
 
 <script>
-import {directionSwitch} from '../mixins/directionSwitch';
 import STag from "./styled/STag";
 
 export default {
     name: 'Tag',
-
-    mixins: [ directionSwitch ],
 
     components:{
         STag
@@ -32,6 +29,10 @@ export default {
         disabled: {
             type: Boolean,
             required: true,
+        },
+        isRTL: {
+            type: Boolean,
+            default: false,
         },
     },
 };

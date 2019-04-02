@@ -9,11 +9,11 @@
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
-            <s-vue-select :isRTL='!isRTL'>
-            <dropdown class="vue-select"
+            <s-vue-select :isRTL='isRTL'>
+            <!-- <div class="vue-select"> -->
+            <dropdown :isRTL='isRTL' class="vue-select"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
-                :isRTL='!isRTL'
                 :manual="multiple">
                 <template v-slot:trigger="{ open, visible }">
                     <button class="button input"
@@ -107,6 +107,7 @@
                     </a>
                 </template>
             </dropdown>
+            <!-- </div> -->
             </s-vue-select>
         </template>
     </core-select>
@@ -121,7 +122,6 @@ import Dropdown from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
-import {directionSwitch} from '../mixins/directionSwitch';
 import SVueSelect from "./styled/SVueSelect";
 
 library.add(faCheck);
@@ -130,8 +130,6 @@ export default {
     name: 'VueSelect',
 
     directives: { focus, clickOutside },
-
-    mixins: [ directionSwitch ],
 
     components: {
         CoreSelect, Dropdown, DropdownIndicator, Tag, SVueSelect,
@@ -156,6 +154,10 @@ export default {
         placeholder: {
             type: String,
             default: 'Pick an option',
+        },
+        isRTL: {
+            type: Boolean,
+            default: false,
         },
     },
 
