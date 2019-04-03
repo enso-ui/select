@@ -40,8 +40,6 @@ export default {
 
 <style lang="scss">
     .vue-select.tags {
-        /* margin-right: 0.3em; */
-
         &:last-child {
             margin-bottom: 0;
         }
