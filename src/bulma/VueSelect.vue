@@ -151,6 +151,12 @@ export default {
         },
     },
 
+    computed: {
+        selection() {
+            return this.$refs.select.selection;
+        },
+    },
+
     methods: {
         clear() {
             this.$refs.select.clear();
