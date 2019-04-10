@@ -3,7 +3,8 @@
         :error-handler="errorHandler"
         :source="source ? route(source) : null"
         v-bind="$attrs"
-        v-on="$listeners"/>
+        v-on="$listeners"
+        ref="select"/>
 </template>
 
 <script>
@@ -31,6 +32,9 @@ export default {
 
     methods: {
         clear() {
+            this.$refs.select.clear();
+        },
+        fetch() {
             this.$refs.select.clear();
         },
     },
