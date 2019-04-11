@@ -4,7 +4,12 @@
         :source="source ? route(source) : null"
         v-bind="$attrs"
         v-on="$listeners"
-        ref="select"/>
+        ref="select">
+         <template v-slot:option="props">
+            <slot name="option"
+                v-bind="props"/>
+        </template>
+    </vue-select>
 </template>
 
 <script>
