@@ -76,7 +76,11 @@
                             :key="option[trackBy]"
                             :class="{ 'is-active': currentIndex === index }"
                             v-on="itemEvents(index)">
-                            <span v-html="highlight(displayLabel(option))"/>
+                            <slot name="option"
+                                :option="option"
+                                :highlight="highlight">
+                                <span v-html="highlight(displayLabel(option))"/>
+                            </slot>
                             <span class="label tag"
                                 :class="isSelected(option) ? 'is-warning' : 'is-success'"
                                 v-if="currentIndex === index && !disableClear">
@@ -151,13 +155,23 @@ export default {
         },
     },
 
+    computed: {
+        selection() {
+            return this.$refs.select.selection;
+        },
+    },
+
     methods: {
         clear() {
+            this.$refs.select.clear();
+        },
+        fetch() {
             this.$refs.select.clear();
         },
     },
 };
 </script>
+
 
 <style lang="scss">
     .dropdown.vue-select {
@@ -252,8 +266,9 @@ export default {
                         position: absolute;
                         padding: 0.3rem;
                         height: 1.3rem;
-                        z-index: 1;
                         right: 0.6rem;
+                        top: calc(50% - 0.65rem);
+                        z-index: 1;
                     }
 
                     .icon.selected {
