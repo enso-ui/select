@@ -27,8 +27,18 @@ export default {
 </script>
 
 <style lang="scss">
+$directions : 'rtl' , 'ltr';
+@each $dir in $directions {
     .vue-select.tags {
-        margin-right: 0.3em;
+        /* margin-right: 0.3em; */
+        @if $dir == 'rtl' {
+            [dir='#{$dir}'] & {
+                margin-left: 0.3em;
+                margin-right: unset;
+            }
+        } @else {
+            margin-right: 0.3em;
+        }
 
         &:last-child {
             margin-bottom: 0;
@@ -45,4 +55,5 @@ export default {
             }
         }
     }
+}
 </style>
