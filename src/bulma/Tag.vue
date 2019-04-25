@@ -30,7 +30,6 @@ export default {
 $directions : 'rtl' , 'ltr';
 @each $dir in $directions {
     .vue-select.tags {
-        /* margin-right: 0.3em; */
         @if $dir == 'rtl' {
             [dir='#{$dir}'] & {
                 margin-left: 0.3em;

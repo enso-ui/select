@@ -192,7 +192,6 @@ $directions : 'rtl' , 'ltr';
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    /* text-align: left; */
                     @if $dir == 'rtl' {
                         [dir='#{$dir}'] & {
                             text-align: right;
@@ -219,7 +218,6 @@ $directions : 'rtl' , 'ltr';
 
                     .delete {
                         position: absolute;
-                        /* right: 1.5rem; */
                         top: 0.55rem;
                         @if $dir == 'rtl' {
                             [dir='#{$dir}'] & {
@@ -236,7 +234,6 @@ $directions : 'rtl' , 'ltr';
                         animation: spinAround .5s infinite linear;
                         border: 2px solid #dbdbdb;
                         border-radius: 290486px;
-                        /* border-right-color: transparent; */
                         border-top-color: transparent;
                         content: "";
                         display: block;
@@ -244,7 +241,6 @@ $directions : 'rtl' , 'ltr';
                         position: relative;
                         width: 1em;
                         position: absolute!important;
-                        /* right: 1.7rem; */
                         top: .55em;
                         z-index: 4;
                         @if $dir == 'rtl' {
@@ -295,7 +291,6 @@ $directions : 'rtl' , 'ltr';
                         position: absolute;
                         padding: 0.3rem;
                         height: 1.3rem;
-                        /* right: 0.6rem; */
                         top: calc(50% - 0.65rem);
                         z-index: 1;
                         @if $dir == 'rtl' {
@@ -311,7 +306,6 @@ $directions : 'rtl' , 'ltr';
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
-                        /* right: 0.6rem; */
                         @if $dir == 'rtl' {
                             [dir='#{$dir}'] & {
                                 left: 0.6rem;
