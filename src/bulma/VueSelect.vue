@@ -9,8 +9,7 @@
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
-            <s-vue-select :isRTL='isRTL'>
-            <dropdown :isRTL='isRTL' class="vue-select"
+            <dropdown class="vue-select"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
                 :manual="multiple">
@@ -32,7 +31,6 @@
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
                                                 :key="value[trackBy]"
-                                                :isRTL='isRTL'
                                                 v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>
@@ -78,7 +76,11 @@
                             :key="option[trackBy]"
                             :class="{ 'is-active': currentIndex === index }"
                             v-on="itemEvents(index)">
-                            <span v-html="highlight(displayLabel(option))"/>
+                            <slot name="option"
+                                :option="option"
+                                :highlight="highlight">
+                                <span v-html="highlight(displayLabel(option))"/>
+                            </slot>
                             <span class="label tag"
                                 :class="isSelected(option) ? 'is-warning' : 'is-success'"
                                 v-if="currentIndex === index && !disableClear">
@@ -106,7 +108,6 @@
                     </a>
                 </template>
             </dropdown>
-            </s-vue-select>
         </template>
     </core-select>
 </template>
@@ -120,7 +121,6 @@ import Dropdown from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
-import SVueSelect from "./styled/SVueSelect";
 
 library.add(faCheck);
 
@@ -130,7 +130,7 @@ export default {
     directives: { focus, clickOutside },
 
     components: {
-        CoreSelect, Dropdown, DropdownIndicator, Tag, SVueSelect,
+        CoreSelect, Dropdown, DropdownIndicator, Tag,
     },
 
     props: {
@@ -153,9 +153,11 @@ export default {
             type: String,
             default: 'Pick an option',
         },
-        isRTL: {
-            type: Boolean,
-            default: false,
+    },
+
+    computed: {
+        selection() {
+            return this.$refs.select.selection;
         },
     },
 
@@ -163,11 +165,17 @@ export default {
         clear() {
             this.$refs.select.clear();
         },
+        fetch() {
+            this.$refs.select.clear();
+        },
     },
 };
 </script>
 
+
 <style lang="scss">
+$directions : 'rtl' , 'ltr';
+@each $dir in $directions {
     .dropdown.vue-select {
         width: 100%;
 
@@ -184,6 +192,13 @@ export default {
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
+                    @if $dir == 'rtl' {
+                        [dir='#{$dir}'] & {
+                            text-align: right;
+                        }
+                    } @else {
+                        text-align: left;
+                    }
 
                     .field.is-grouped.is-grouped-multiline:last-child {
                         margin-bottom: unset;
@@ -204,6 +219,14 @@ export default {
                     .delete {
                         position: absolute;
                         top: 0.55rem;
+                        @if $dir == 'rtl' {
+                            [dir='#{$dir}'] & {
+                                left: 1.5rem;
+                                right: unset;
+                            }
+                        } @else {
+                            right: 1.5rem;
+                        }
                     }
 
                     .is-loading {
@@ -220,6 +243,18 @@ export default {
                         position: absolute!important;
                         top: .55em;
                         z-index: 4;
+                        @if $dir == 'rtl' {
+                            [dir='#{$dir}'] & {
+                                border-left-color: transparent;
+                                border-right-color: inherit;
+                                left: 1.7rem;
+                                right: unset;
+                            }
+                        } @else {
+                            border-right-color: transparent;
+                            right: 1.7rem;
+                        }
+
                     }
                 }
             }
@@ -256,15 +291,33 @@ export default {
                         position: absolute;
                         padding: 0.3rem;
                         height: 1.3rem;
+                        top: calc(50% - 0.65rem);
                         z-index: 1;
+                        @if $dir == 'rtl' {
+                            [dir='#{$dir}'] & {
+                                left: 0.6rem;
+                                right: unset;
+                            }
+                        } @else {
+                            right: 0.6rem;
+                        }
                     }
 
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
+                        @if $dir == 'rtl' {
+                            [dir='#{$dir}'] & {
+                                left: 0.6rem;
+                                right: unset;
+                            }
+                        } @else {
+                            right: 0.6rem;
+                        }
                     }
                 }
             }
         }
     }
+}
 </style>

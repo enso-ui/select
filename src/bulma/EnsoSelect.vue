@@ -1,24 +1,24 @@
 <template>
     <vue-select :i18n="i18n"
-        :isRTL="isRTL"
         :error-handler="errorHandler"
         :source="source ? route(source) : null"
         v-bind="$attrs"
-        v-on="$listeners"/>
+        v-on="$listeners"
+        ref="select">
+         <template v-slot:option="props">
+            <slot name="option"
+                v-bind="props"/>
+        </template>
+    </vue-select>
 </template>
 
 <script>
 import VueSelect from './VueSelect.vue';
-import { mapGetters } from 'vuex'
 
 export default {
     name: 'EnsoSelect',
 
     inject: ['errorHandler', 'i18n'],
-
-    computed:{
-        ...mapGetters('preferences', ['isRTL']),
-    },
 
     components: { VueSelect },
 
@@ -29,8 +29,17 @@ export default {
         },
     },
 
+    computed: {
+        selection() {
+            return this.$refs.select.selection;
+        },
+    },
+
     methods: {
         clear() {
+            this.$refs.select.clear();
+        },
+        fetch() {
             this.$refs.select.clear();
         },
     },

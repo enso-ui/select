@@ -1,25 +1,17 @@
 <template>
-    <s-tag :isRTL='isRTL'>
-        <div class="vue-select tags has-addons">
-            <span class="tag is-link">
-                {{ label }}
-            </span>
-            <a class="tag is-delete"
-                @click="$emit('deselect')"
-                v-if="!disabled"/>
-        </div>
-    </s-tag>
+    <div class="vue-select tags has-addons">
+        <span class="tag is-link">
+            {{ label }}
+        </span>
+        <a class="tag is-delete"
+            @click="$emit('deselect')"
+            v-if="!disabled"/>
+    </div>
 </template>
 
 <script>
-import STag from "./styled/STag";
-
 export default {
     name: 'Tag',
-
-    components:{
-        STag
-    },
 
     props: {
         label: {
@@ -30,16 +22,23 @@ export default {
             type: Boolean,
             required: true,
         },
-        isRTL: {
-            type: Boolean,
-            default: false,
-        },
     },
 };
 </script>
 
 <style lang="scss">
+$directions : 'rtl' , 'ltr';
+@each $dir in $directions {
     .vue-select.tags {
+        @if $dir == 'rtl' {
+            [dir='#{$dir}'] & {
+                margin-left: 0.3em;
+                margin-right: unset;
+            }
+        } @else {
+            margin-right: 0.3em;
+        }
+
         &:last-child {
             margin-bottom: 0;
         }
@@ -55,4 +54,5 @@ export default {
             }
         }
     }
+}
 </style>

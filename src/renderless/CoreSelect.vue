@@ -217,7 +217,7 @@ export default {
                 : null;
         },
         valueMatchesOption(value, option) {
-            return this.objects
+            return value !== null && this.objects
                 ? value[this.trackBy] === option[this.trackBy]
                 : value === option[this.trackBy];
         },
@@ -230,7 +230,7 @@ export default {
             this.currentIndex = 0;
         },
         select() {
-            if (!this.hasFilteredOptions) {
+            if (!this.hasFilteredOptions || this.loading) {
                 return;
             }
 
