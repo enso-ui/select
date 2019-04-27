@@ -17,8 +17,9 @@
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
+                        :disabled="disabled"
                         @click="open"
-                        v-on="dropdownTriggerEvents" :disabled="disabled">
+                        v-on="dropdownTriggerEvents">
                         <div class="control-display">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
