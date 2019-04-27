@@ -3,7 +3,7 @@
         v-on="$listeners"
         ref="select">
         <template v-slot:default="{
-                multiple, taggable, loading, disableClear, visibleClearControl, hasOptions,
+                multiple, taggable, loading, disabled, disableClear, visibleClearControl, hasOptions,
                 hasSelection, query, options, selection, trackBy, currentIndex,
                 i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
                 dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
@@ -17,6 +17,7 @@
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
+                        :disabled="disabled"
                         @click="open"
                         v-on="dropdownTriggerEvents">
                         <div class="control-display">
@@ -52,7 +53,7 @@
                                 v-on="clearEvents"
                                 v-if="visibleClearControl"/>
                         </div>
-                        <dropdown-indicator :open="visible"/>
+                        <dropdown-indicator :open="visible" v-if="!disabled"/>
                     </button>
                 </template>
                 <template v-slot:controls>

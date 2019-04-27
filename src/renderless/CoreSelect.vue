@@ -353,6 +353,7 @@ export default {
             multiple: this.multiple,
             taggable: this.taggable,
             loading: this.loading,
+            disabled: this.disabled,
             disableClear: this.disableClear,
             visibleClearControl: this.visibleClearControl,
             hasOptions: this.hasFilteredOptions,
