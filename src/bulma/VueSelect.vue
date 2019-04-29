@@ -174,8 +174,6 @@ export default {
 
 
 <style lang="scss">
-$directions : 'rtl' , 'ltr';
-@each $dir in $directions {
     .dropdown.vue-select {
         width: 100%;
 
@@ -192,12 +190,9 @@ $directions : 'rtl' , 'ltr';
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    @if $dir == 'rtl' {
-                        [dir='#{$dir}'] & {
-                            text-align: right;
-                        }
-                    } @else {
-                        text-align: left;
+                    text-align: left;
+                    [dir='rtl'] & {
+                        text-align: right;
                     }
 
                     .field.is-grouped.is-grouped-multiline:last-child {
@@ -219,13 +214,10 @@ $directions : 'rtl' , 'ltr';
                     .delete {
                         position: absolute;
                         top: 0.55rem;
-                        @if $dir == 'rtl' {
-                            [dir='#{$dir}'] & {
-                                left: 1.5rem;
-                                right: unset;
-                            }
-                        } @else {
-                            right: 1.5rem;
+                        right: 1.5rem;
+                        [dir='rtl'] & {
+                            left: 1.5rem;
+                            right: unset;
                         }
                     }
 
@@ -243,18 +235,14 @@ $directions : 'rtl' , 'ltr';
                         position: absolute!important;
                         top: .55em;
                         z-index: 4;
-                        @if $dir == 'rtl' {
-                            [dir='#{$dir}'] & {
-                                border-left-color: transparent;
-                                border-right-color: inherit;
-                                left: 1.7rem;
-                                right: unset;
-                            }
-                        } @else {
-                            border-right-color: transparent;
-                            right: 1.7rem;
+                        border-right-color: transparent;
+                        right: 1.7rem;
+                        [dir='rtl'] & {
+                            border-left-color: transparent;
+                            border-right-color: inherit;
+                            left: 1.7rem;
+                            right: unset;
                         }
-
                     }
                 }
             }
@@ -293,31 +281,25 @@ $directions : 'rtl' , 'ltr';
                         height: 1.3rem;
                         top: calc(50% - 0.65rem);
                         z-index: 1;
-                        @if $dir == 'rtl' {
-                            [dir='#{$dir}'] & {
-                                left: 0.6rem;
-                                right: unset;
-                            }
-                        } @else {
-                            right: 0.6rem;
+                        right: 0.6rem;
+                        [dir='rtl'] & {
+                            left: 0.6rem;
+                            right: unset;
                         }
                     }
 
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
-                        @if $dir == 'rtl' {
-                            [dir='#{$dir}'] & {
-                                left: 0.6rem;
-                                right: unset;
-                            }
-                        } @else {
-                            right: 0.6rem;
+                        right: 0.6rem;
+                        [dir='rtl'] & {
+                            left: 0.6rem;
+                            right: unset;
                         }
                     }
                 }
             }
         }
     }
-}
+
 </style>
