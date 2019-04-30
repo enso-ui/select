@@ -190,7 +190,9 @@ export default {
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    text-align: left;
+                    [dir='ltr'] & {
+                        text-align: left;
+                    }
                     [dir='rtl'] & {
                         text-align: right;
                     }
@@ -214,10 +216,11 @@ export default {
                     .delete {
                         position: absolute;
                         top: 0.55rem;
-                        right: 1.5rem;
+                        [dir='ltr'] & {
+                            right: 1.5rem;
+                        }
                         [dir='rtl'] & {
                             left: 1.5rem;
-                            right: unset;
                         }
                     }
 
@@ -235,13 +238,13 @@ export default {
                         position: absolute!important;
                         top: .55em;
                         z-index: 4;
-                        border-right-color: transparent;
-                        right: 1.7rem;
+                        [dir='ltr'] & {
+                            border-right-color: transparent;
+                            right: 1.7rem;
+                        }
                         [dir='rtl'] & {
                             border-left-color: transparent;
-                            border-right-color: inherit;
                             left: 1.7rem;
-                            right: unset;
                         }
                     }
                 }
@@ -281,20 +284,22 @@ export default {
                         height: 1.3rem;
                         top: calc(50% - 0.65rem);
                         z-index: 1;
-                        right: 0.6rem;
+                        [dir='ltr'] & {
+                            right: 0.6rem;
+                        }
                         [dir='rtl'] & {
                             left: 0.6rem;
-                            right: unset;
                         }
                     }
 
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
-                        right: 0.6rem;
+                        [dir='ltr'] & {
+                            right: 0.6rem;
+                        }
                         [dir='rtl'] & {
                             left: 0.6rem;
-                            right: unset;
                         }
                     }
                 }
