@@ -191,7 +191,12 @@ export default {
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    text-align: left;
+                    [dir='ltr'] & {
+                        text-align: left;
+                    }
+                    [dir='rtl'] & {
+                        text-align: right;
+                    }
 
                     .field.is-grouped.is-grouped-multiline:last-child {
                         margin-bottom: unset;
@@ -211,8 +216,13 @@ export default {
 
                     .delete {
                         position: absolute;
-                        right: 1.5rem;
                         top: 0.55rem;
+                        [dir='ltr'] & {
+                            right: 1.5rem;
+                        }
+                        [dir='rtl'] & {
+                            left: 1.5rem;
+                        }
                     }
 
                     .is-loading {
@@ -220,7 +230,6 @@ export default {
                         animation: spinAround .5s infinite linear;
                         border: 2px solid #dbdbdb;
                         border-radius: 290486px;
-                        border-right-color: transparent;
                         border-top-color: transparent;
                         content: "";
                         display: block;
@@ -228,9 +237,16 @@ export default {
                         position: relative;
                         width: 1em;
                         position: absolute!important;
-                        right: 1.7rem;
                         top: .55em;
                         z-index: 4;
+                        [dir='ltr'] & {
+                            border-right-color: transparent;
+                            right: 1.7rem;
+                        }
+                        [dir='rtl'] & {
+                            border-left-color: transparent;
+                            left: 1.7rem;
+                        }
                     }
                 }
             }
@@ -267,18 +283,29 @@ export default {
                         position: absolute;
                         padding: 0.3rem;
                         height: 1.3rem;
-                        right: 0.6rem;
                         top: calc(50% - 0.65rem);
                         z-index: 1;
+                        [dir='ltr'] & {
+                            right: 0.6rem;
+                        }
+                        [dir='rtl'] & {
+                            left: 0.6rem;
+                        }
                     }
 
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
-                        right: 0.6rem;
+                        [dir='ltr'] & {
+                            right: 0.6rem;
+                        }
+                        [dir='rtl'] & {
+                            left: 0.6rem;
+                        }
                     }
                 }
             }
         }
     }
+
 </style>

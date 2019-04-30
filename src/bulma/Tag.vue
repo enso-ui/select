@@ -28,7 +28,12 @@ export default {
 
 <style lang="scss">
     .vue-select.tags {
-        margin-right: 0.3em;
+        [dir='ltr'] & {
+            margin-right: 0.3em;
+        }
+        [dir='rtl'] & {
+            margin-left: 0.3em;
+        }
 
         &:last-child {
             margin-bottom: 0;
@@ -45,4 +50,5 @@ export default {
             }
         }
     }
+
 </style>
