@@ -284,7 +284,7 @@ export default {
         highlight(label) {
             return (this.query.length > 0)
                 ? label.replace(
-                    new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
+                      new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
                   )
                 : label;
         },
