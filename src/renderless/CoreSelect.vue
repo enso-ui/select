@@ -243,7 +243,8 @@ export default {
             }
         },
         handleMultipleSelection(option) {
-            const index = this.value.findIndex(val => this.valueMatchesOption(val, option));
+            const index = this.value
+                .findIndex(val => this.valueMatchesOption(val, option));
 
             if (index >= 0) {
                 this.value.splice(index, 1);
@@ -281,9 +282,11 @@ export default {
             this.$emit('clear');
         },
         highlight(label) {
-            return label.replace(
-                new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
-            );
+            return (this.query.length > 0)
+                ? label.replace(
+                      new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
+                  )
+                : label;
         },
         deselect(value) {
             const index = this.value
