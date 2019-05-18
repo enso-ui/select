@@ -282,11 +282,11 @@ export default {
             this.$emit('clear');
         },
         highlight(label) {
-          return (this.query.length > 0)
-            ? label.replace(
-                new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
-              )
-            : label;
+            return (this.query.length > 0)
+                ? label.replace(
+                    new RegExp(`(${this.query})`, 'gi'), '<b>$1</b>',
+                  )
+                : label;
         },
         deselect(value) {
             const index = this.value
