@@ -375,7 +375,7 @@ export default {
             dropdownEvents: {
                 close: this.reset,
             },
-            dropdownTriggerEvents: {
+            reloadEvents: {
                 click: () => {
                     if (!this.hasOptions) {
                         this.fetch();

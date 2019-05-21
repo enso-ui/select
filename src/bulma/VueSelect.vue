@@ -6,21 +6,21 @@
                 multiple, taggable, loading, disabled, disableClear, visibleClearControl, hasOptions,
                 hasSelection, query, options, selection, trackBy, currentIndex,
                 i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
-                dropdownTriggerEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
+                reloadEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
                 selectionEvents, clearEvents, taggableEvents, keyboardEvents,
             }">
             <dropdown class="vue-select"
                 v-bind="dropdownBindings"
                 v-on="dropdownEvents"
                 :manual="multiple">
-                <template v-slot:trigger="{ open, visible }">
+                <template v-slot:trigger="{ triggerEvents, visible }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
                         :disabled="disabled"
-                        @click="open"
-                        v-on="dropdownTriggerEvents">
-                        <div class="control-display">
+                        v-on="triggerEvents">
+                        <div class="control-display"
+                            v-on="reloadEvents">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
                                 <div class="control">
