@@ -86,6 +86,7 @@ export default {
     },
 
     data: v => ({
+        internalValue: null,
         optionList: v.options,
         loading: false,
         query: '',
@@ -152,7 +153,11 @@ export default {
             deep: true,
         },
         value(value) {
-            this.$emit('input', value);
+            if (this.internalValue !== value) {
+                this.$emit('input', value);
+            }
+
+            this.internalValue = null;
         },
     },
 
@@ -198,6 +203,7 @@ export default {
             }
         },
         update(value) {
+            this.internalValue = value;
             this.$emit('input', value);
         },
         updateSelection() {
