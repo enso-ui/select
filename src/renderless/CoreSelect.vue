@@ -153,7 +153,7 @@ export default {
             deep: true,
         },
         value(value) {
-            if (this.internalValue !== value) {
+            if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
                 this.$emit('input', value);
             }
 
@@ -205,6 +205,7 @@ export default {
         update(value) {
             this.internalValue = value;
             this.$emit('input', value);
+            this.$emit('update');
         },
         updateSelection() {
             const value = this.multiple
