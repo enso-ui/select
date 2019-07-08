@@ -40,7 +40,7 @@ export default {
             this.$refs.select.clear();
         },
         fetch() {
-            this.$refs.select.clear();
+            this.$refs.select.fetch();
         },
     },
 };
