@@ -234,7 +234,7 @@ export default {
         matchesQuery(option) {
             const label = this.displayLabel(option).toLowerCase();
 
-            return this.query.split(' ')
+            return this.query.split(' ').filter(arg => arg !== '')
                 .every(arg => label.indexOf(arg) >= 0);
         },
         reset() {
@@ -294,7 +294,7 @@ export default {
             this.$emit('clear');
         },
         highlight(label) {
-            return this.query.split(' ')
+            return this.query.split(' ').filter(arg => arg !== '')
                 .reduce((label, arg) => label.replace(
                     new RegExp(`(${arg})`, 'gi'), '<b>$1</b>',
                 ), label);
