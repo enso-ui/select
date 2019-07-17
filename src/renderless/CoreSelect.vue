@@ -234,7 +234,7 @@ export default {
         matchesQuery(option) {
             const label = this.displayLabel(option).toLowerCase();
 
-            return this.query.split(' ').filter(arg => arg !== '')
+            return this.query.toLowerCase().split(' ').filter(arg => arg !== '')
                 .every(arg => label.indexOf(arg) >= 0);
         },
         reset() {
