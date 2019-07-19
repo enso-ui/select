@@ -232,10 +232,11 @@ export default {
                 : value === option[this.trackBy];
         },
         matchesQuery(option) {
-            const label = this.displayLabel(option).toLowerCase();
+            const label = this.displayLabel(option);
 
-            return this.query.toLowerCase().split(' ').filter(arg => arg !== '')
-                .every(arg => label.indexOf(arg) >= 0);
+            return this.query.toLowerCase().split(' ')
+                .filter(arg => arg !== '')
+                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
         },
         reset() {
             this.query = '';
@@ -294,8 +295,9 @@ export default {
             this.$emit('clear');
         },
         highlight(label) {
-            return this.query.split(' ').filter(arg => arg !== '')
-                .reduce((label, arg) => label.replace(
+            return this.query.toLowerCase().data
+                .split(' ').filter(arg => arg !== '')
+                .reduce((label, arg) => `${label}`.replace(
                     new RegExp(`(${arg})`, 'gi'), '<b>$1</b>',
                 ), label);
         },
