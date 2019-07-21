@@ -295,8 +295,8 @@ export default {
             this.$emit('clear');
         },
         highlight(label) {
-            return this.query.toLowerCase()
-                .split(' ').filter(arg => arg !== '')
+            return this.query.toLowerCase().split(' ')
+                .filter(arg => arg !== '')
                 .reduce((label, arg) => `${label}`.replace(
                     new RegExp(`(${arg})`, 'gi'), '<b>$1</b>',
                 ), label);
