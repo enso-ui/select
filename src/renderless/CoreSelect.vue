@@ -2,6 +2,7 @@
 import debounce from 'lodash/debounce';
 
 export default {
+
     name: 'CoreSelect',
 
     props: {
@@ -127,7 +128,11 @@ export default {
     },
 
     watch: {
-        query: 'fetch',
+        query() {
+            if (this.serverSide) {
+                this.fetch();
+            }
+        },
         options: {
             handler() {
                 this.optionList = this.options;
@@ -157,27 +162,33 @@ export default {
                 this.$emit('input', value);
             }
 
+            this.$emit('selection', this.selection);
             this.internalValue = null;
         },
     },
 
     created() {
-        this.fetch = debounce(this.fetch, this.debounce);
-        this.fetch();
+        this.init();
     },
 
     methods: {
-        fetch() {
-            if (!this.serverSide) {
+        init() {
+            if (this.serverSide) {
+                this.fetch();
+                this.fetch = debounce(this.fetch, this.debounce);
                 return;
             }
 
+            this.$emit('selection', this.selection);
+        },
+        fetch() {
             this.loading = true;
 
             axios.get(this.source, { params: this.requestParams() })
                 .then(({ data }) => {
                     this.processOptions(data);
                     this.$emit('fetch', this.optionList);
+                    this.$emit('selection', this.selection);
                     this.loading = false;
                 }).catch((error) => {
                     this.loading = false;
@@ -363,7 +374,6 @@ export default {
             }
         },
     },
-
     render() {
         return this.$scopedSlots.default({
             multiple: this.multiple,
