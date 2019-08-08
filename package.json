@@ -1,6 +1,6 @@
 {
   "name": "@enso-ui/select",
-  "version": "1.0.43",
+  "version": "1.0.44",
   "description": "Select",
   "main": "index.js",
   "scripts": {
