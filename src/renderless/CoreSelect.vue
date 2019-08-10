@@ -18,6 +18,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        disableFiltering: {
+            type: Boolean,
+            default: false,
+        },
         disabled: {
             type: Boolean,
             default: false,
@@ -107,7 +111,7 @@ export default {
             return this.optionList.length > 0;
         },
         filteredOptions() {
-            return this.query
+            return this.query && !this.disableFiltering
                 ? this.optionList.filter(option => this.matchesQuery(option))
                 : this.optionList;
         },
