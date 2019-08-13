@@ -161,6 +161,15 @@ export default {
             },
             deep: true,
         },
+        source: {
+            handler() {
+                if (this.serverSide) {
+                    this.fetch();
+                    return;
+                }
+                this.optionList = this.options;
+            },
+        },
         value(value) {
             if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
                 this.$emit('input', value);
