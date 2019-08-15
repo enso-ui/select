@@ -416,7 +416,7 @@ export default {
             },
             reloadEvents: {
                 click: () => {
-                    if (!this.hasOptions) {
+                    if (!this.hasOptions && !this.readonly && !this.disabled) {
                         this.fetch();
                     }
                 },
