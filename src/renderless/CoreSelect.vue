@@ -96,6 +96,7 @@ export default {
         loading: false,
         query: '',
         currentIndex: 0,
+        allowsSelection: true,
     }),
 
     computed: {
@@ -145,18 +146,21 @@ export default {
         },
         params: {
             handler() {
+                this.allowsSelection = false;
                 this.fetch();
             },
             deep: true,
         },
         pivotParams: {
             handler() {
+                this.allowsSelection = false;
                 this.fetch();
             },
             deep: true,
         },
         customParams: {
             handler() {
+                this.allowsSelection = false;
                 this.fetch();
             },
             deep: true,
@@ -202,6 +206,7 @@ export default {
                     this.processOptions(data);
                     this.$emit('fetch', this.optionList);
                     this.$emit('selection', this.selection);
+                    this.allowsSelection = true;
                     this.loading = false;
                 }).catch((error) => {
                     this.loading = false;
@@ -267,31 +272,32 @@ export default {
             this.currentIndex = 0;
         },
         select() {
-            if (!this.hasFilteredOptions || this.loading) {
-                return;
-            }
+            if (this.hasFilteredOptions && this.allowsSelection) {
+                const option = this.filteredOptions[this.currentIndex];
 
-            const option = this.filteredOptions[this.currentIndex];
-
-            if (this.multiple) {
-                this.handleMultipleSelection(option);
-            } else {
-                this.handleSingleSelection(option);
+                return this.multiple
+                    ? this.handleMultipleSelection(option)
+                    : this.handleSingleSelection(option)
             }
         },
         handleMultipleSelection(option) {
             const index = this.value
                 .findIndex(val => this.valueMatchesOption(val, option));
 
+            this.updateMultipleSelection(index, option);
+
+            this.update(this.value);
+        },
+        updateMultipleSelection(index, option) {
             if (index >= 0) {
                 this.value.splice(index, 1);
                 this.$emit('deselect', option[this.trackBy]);
-            } else {
-                this.value.push(this.optionValue(option));
-                this.$emit('select', option[this.trackBy]);
+
+                return;
             }
 
-            this.update(this.value);
+            this.value.push(this.optionValue(option));
+            this.$emit('select', option[this.trackBy]);
         },
         handleSingleSelection(option) {
             this.reset();
