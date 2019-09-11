@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@enso-ui/directives": "^1.0.0",
-    "@enso-ui/dropdown": "^1.0.0",
+    "@enso-ui/dropdown": "~1.0.0",
     "@enso-ui/dropdown-indicator": "^1.0.0",
     "@fortawesome/fontawesome-free": "^5.2.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.2",

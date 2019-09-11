@@ -18,7 +18,7 @@ import VueSelect from './VueSelect.vue';
 export default {
     name: 'EnsoSelect',
 
-    inject: ['errorHandler', 'i18n'],
+    inject: ['errorHandler', 'i18n', 'route'],
 
     components: { VueSelect },
 

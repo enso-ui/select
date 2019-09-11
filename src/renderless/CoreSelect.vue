@@ -18,10 +18,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        disableFiltering: {
-            type: Boolean,
-            default: false,
-        },
         disabled: {
             type: Boolean,
             default: false,
@@ -112,7 +108,7 @@ export default {
             return this.optionList.length > 0;
         },
         filteredOptions() {
-            return this.query && !this.disableFiltering
+            return this.query && !this.serverSide
                 ? this.optionList.filter(option => this.matchesQuery(option))
                 : this.optionList;
         },
@@ -277,7 +273,7 @@ export default {
 
                 return this.multiple
                     ? this.handleMultipleSelection(option)
-                    : this.handleSingleSelection(option)
+                    : this.handleSingleSelection(option);
             }
         },
         handleMultipleSelection(option) {
