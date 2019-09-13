@@ -18,6 +18,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        disableFiltering: {
+            type: Boolean,
+            default: false,
+        },
         disabled: {
             type: Boolean,
             default: false,
@@ -108,7 +112,7 @@ export default {
             return this.optionList.length > 0;
         },
         filteredOptions() {
-            return this.query && !this.serverSide
+            return this.query && !this.disableFiltering
                 ? this.optionList.filter(option => this.matchesQuery(option))
                 : this.optionList;
         },
@@ -273,7 +277,7 @@ export default {
 
                 return this.multiple
                     ? this.handleMultipleSelection(option)
-                    : this.handleSingleSelection(option);
+                    : this.handleSingleSelection(option)
             }
         },
         handleMultipleSelection(option) {
@@ -323,9 +327,18 @@ export default {
         highlight(label) {
             return this.query.toLowerCase().split(' ')
                 .filter(arg => arg !== '')
-                .reduce((label, arg) => `${label}`.replace(
-                    new RegExp(`(${arg})`, 'gi'), '<b>$1</b>',
-                ), label);
+                .reduce((label, arg) => this.bold(label, arg), label);
+        },
+        bold(label, arg) {
+            let from;
+
+            try {
+                from = new RegExp(`(${arg})`, 'gi');
+            } catch {
+                from = arg;
+            }
+
+            return `${label}`.replace(from, '<b>$1</b>');
         },
         deselect(value) {
             const index = this.value
