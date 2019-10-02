@@ -2,7 +2,6 @@
 import debounce from 'lodash/debounce';
 
 export default {
-
     name: 'CoreSelect',
 
     props: {
@@ -93,6 +92,7 @@ export default {
         query: '',
         currentIndex: 0,
         allowsSelection: true,
+        ongoingRequest: null,
     }),
 
     computed: {
@@ -120,7 +120,7 @@ export default {
                 ? this.optionList.filter(option => this.value
                     .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find(option => this.valueMatchesOption(this.value, option));
+                    .find(option => this.valueMatchesOption(this.value, option)) || null;
         },
         visibleClearControl() {
             return !this.disableClear && !this.readonly && !this.disabled
@@ -167,6 +167,7 @@ export default {
                     this.fetch();
                     return;
                 }
+
                 this.optionList = this.options;
             },
         },
@@ -175,8 +176,14 @@ export default {
                 this.$emit('input', value);
             }
 
-            this.$emit('selection', this.selection);
             this.internalValue = null;
+
+            if (JSON.stringify(this.selection) !== JSON.stringify(value)) {
+                this.fetch();
+                return;
+            }
+
+            this.$emit('selection', this.selection);
         },
     },
 
@@ -195,19 +202,31 @@ export default {
             this.$emit('selection', this.selection);
         },
         fetch() {
+            if (this.ongoingRequest) {
+                this.ongoingRequest.cancel();
+            }
+
+            this.ongoingRequest = axios.CancelToken.source();
             this.loading = true;
 
-            axios.get(this.source, { params: this.requestParams() })
-                .then(({ data }) => {
-                    this.processOptions(data);
-                    this.$emit('fetch', this.optionList);
-                    this.$emit('selection', this.selection);
-                    this.allowsSelection = true;
-                    this.loading = false;
-                }).catch((error) => {
-                    this.loading = false;
+            axios.get(
+                this.source, {
+                    params: this.requestParams(),
+                    cancelToken: this.ongoingRequest.token,
+                },
+            ).then(({ data }) => {
+                this.processOptions(data);
+                this.$emit('fetch', this.optionList);
+                this.$emit('selection', this.selection);
+                this.allowsSelection = true;
+                this.loading = false;
+            }).catch((error) => {
+                this.loading = false;
+
+                if (!axios.isCancel(error)) {
                     this.errorHandler(error);
-                });
+                }
+            });
         },
         requestParams() {
             return {
@@ -268,27 +287,30 @@ export default {
             this.currentIndex = 0;
         },
         select() {
-            if (this.hasFilteredOptions && this.allowsSelection) {
-                const option = this.filteredOptions[this.currentIndex];
-
-                return this.multiple
-                    ? this.handleMultipleSelection(option)
-                    : this.handleSingleSelection(option)
+            if (!this.hasFilteredOptions || !this.allowsSelection) {
+                return;
             }
+
+            const option = this.filteredOptions[this.currentIndex];
+
+            if (this.multiple) {
+                this.handleMultipleSelection(option);
+                return;
+            }
+
+            this.handleSingleSelection(option);
         },
         handleMultipleSelection(option) {
             const index = this.value
                 .findIndex(val => this.valueMatchesOption(val, option));
 
             this.updateMultipleSelection(index, option);
-
             this.update(this.value);
         },
         updateMultipleSelection(index, option) {
             if (index >= 0) {
                 this.value.splice(index, 1);
                 this.$emit('deselect', option[this.trackBy]);
-
                 return;
             }
 
@@ -398,6 +420,7 @@ export default {
             }
         },
     },
+
     render() {
         return this.$scopedSlots.default({
             multiple: this.multiple,
