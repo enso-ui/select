@@ -235,9 +235,18 @@ export default {
                 customParams: this.customParams,
                 query: this.query,
                 trackBy: this.trackBy,
-                value: this.value,
+                value: this.requestValue(),
                 paginate: this.paginate,
             };
+        },
+        requestValue() {
+            if (!this.objects) {
+                return this.value;
+            }
+
+            return this.multiple
+                ? this.value.map(value => value[this.trackBy])
+                : this.value[this.trackBy];
         },
         processOptions(options) {
             this.optionList = options;
@@ -465,20 +474,20 @@ export default {
             keyboardEvents: {
                 keydown: (e) => {
                     switch (e.key) {
-                    case 'ArrowDown':
-                        this.nextIndex();
-                        e.preventDefault();
-                        break;
-                    case 'ArrowUp':
-                        this.previousIndex();
-                        e.preventDefault();
-                        break;
-                    case 'Enter':
-                        this.select();
-                        e.preventDefault();
-                        break;
-                    default:
-                        break;
+                        case 'ArrowDown':
+                            this.nextIndex();
+                            e.preventDefault();
+                            break;
+                        case 'ArrowUp':
+                            this.previousIndex();
+                            e.preventDefault();
+                            break;
+                        case 'Enter':
+                            this.select();
+                            e.preventDefault();
+                            break;
+                        default:
+                            break;
                     }
                 },
             },
