@@ -474,20 +474,20 @@ export default {
             keyboardEvents: {
                 keydown: (e) => {
                     switch (e.key) {
-                        case 'ArrowDown':
-                            this.nextIndex();
-                            e.preventDefault();
-                            break;
-                        case 'ArrowUp':
-                            this.previousIndex();
-                            e.preventDefault();
-                            break;
-                        case 'Enter':
-                            this.select();
-                            e.preventDefault();
-                            break;
-                        default:
-                            break;
+                    case 'ArrowDown':
+                        this.nextIndex();
+                        e.preventDefault();
+                        break;
+                    case 'ArrowUp':
+                        this.previousIndex();
+                        e.preventDefault();
+                        break;
+                    case 'Enter':
+                        this.select();
+                        e.preventDefault();
+                        break;
+                    default:
+                        break;
                     }
                 },
             },
