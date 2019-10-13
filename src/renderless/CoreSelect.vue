@@ -129,11 +129,7 @@ export default {
     },
 
     watch: {
-        query() {
-            if (this.serverSide) {
-                this.fetch();
-            }
-        },
+        query: 'fetchIfServerSide',
         options: {
             handler() {
                 this.optionList = this.options;
@@ -163,12 +159,8 @@ export default {
         },
         source: {
             handler() {
-                if (this.serverSide) {
-                    this.fetch();
-                    return;
-                }
-
                 this.optionList = this.options;
+                this.fetchIfServerSide();
             },
         },
         value(value) {
@@ -179,7 +171,7 @@ export default {
             this.internalValue = null;
 
             if (JSON.stringify(this.selection) !== JSON.stringify(value)) {
-                this.fetch();
+                this.fetchIfServerSide();
                 return;
             }
 
@@ -193,13 +185,18 @@ export default {
 
     methods: {
         init() {
-            if (this.serverSide) {
-                this.fetch();
-                this.fetch = debounce(this.fetch, this.debounce);
+            if (!this.serverSide) {
+                this.$emit('selection', this.selection);
                 return;
             }
 
-            this.$emit('selection', this.selection);
+            this.fetch();
+            this.fetch = debounce(this.fetch, this.debounce);
+        },
+        fetchIfServerSide() {
+            if (this.serverSide) {
+                this.fetch();
+            }
         },
         fetch() {
             if (this.ongoingRequest) {
