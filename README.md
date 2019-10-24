@@ -18,26 +18,9 @@ For live examples and demos, you may visit [laravel-enso.com](https://www.larave
 
 Check the full documentation at  [docs.laravel-enso.com](https://docs.laravel-enso.com).
 
-### Installation
+### Installation, Configuration & Usage
 
-Install the package:
-```
-npm i @enso-ui/select
-```
-Import the desired component(s):
-```js
-import { VueSelect, EnsoSelect } from '@enso-ui/select/bulma';
-import CoreSelect from '@enso-ui/select/renderless';
-```
-
-### Exports
-
-`@enso-ui/card/renderless`:
-- `VueSelect`,
-
-`@enso-ui/card/bulma`:
-- `VueSelect`,
-- `EnsoSelect`,
+Be sure to check out the full documentation for this package available at [docs.laravel-enso.com](https://docs.laravel-enso.com/frontend/select.html)
 
 ## Contributions
 
