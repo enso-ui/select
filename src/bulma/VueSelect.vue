@@ -116,8 +116,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCheck }
     from '@fortawesome/free-solid-svg-icons';
 import { focus, clickOutside } from '@enso-ui/directives';
-import Dropdown from '@enso-ui/dropdown/bulma';
-import DropdownItem from '@enso-ui/dropdown/src/bulma/DropdownItem.vue';
+import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
