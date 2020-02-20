@@ -4,7 +4,7 @@
             {{ label }}
         </span>
         <a class="tag is-delete"
-            @click="$emit('deselect')"
+            @click.stop="$emit('deselect')"
             v-if="!disabled"/>
     </div>
 </template>
