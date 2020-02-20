@@ -3,22 +3,24 @@
         v-on="$listeners"
         ref="select">
         <template v-slot:default="{
-                multiple, taggable, loading, disabled, disableClear, visibleClearControl, hasOptions,
-                hasSelection, query, options, selection, trackBy, currentIndex,
-                i18n, displayLabel, isSelected, highlight, dropdownBindings, dropdownEvents,
-                reloadEvents, filterEvents, filterBindings, itemEvents, selectionBindings,
-                selectionEvents, clearEvents, taggableEvents, keyboardEvents,
+                clearControl, clearEvents, dropdownDisabled, isCurrent, disableClear, disabled,
+                displayLabel, filterBindings, filterEvents, hasOptions, hasSelection, highlight,
+                i18n, isSelected, multiple, needsSearch, reloadEvents, taggable, loading, options,
+                query, reset, selection, selectionBindings, selectionEvents, taggableEvents,
+                trackBy, select, updateCurrent,
             }">
             <dropdown class="vue-select"
-                v-bind="dropdownBindings"
-                v-on="dropdownEvents"
-                :manual="multiple">
+                :disabled="dropdownDisabled"
+                :manual="multiple"
+                @update-index="updateCurrent"
+                @hide="reset(); $refs.trigger.focus()">
                 <template v-slot:trigger="{ triggerEvents, visible }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
                         :disabled="disabled"
-                        v-on="triggerEvents">
+                        v-on="triggerEvents"
+                        ref="trigger">
                         <div class="control-display"
                             v-on="reloadEvents">
                             <div class="field is-grouped is-grouped-multiline"
@@ -27,8 +29,7 @@
                                     <slot name="selection"
                                         :selection="selection"
                                         :selection-bindings="selectionBindings"
-                                        :selection-events="selectionEvents"
-                                        :track-by="trackBy">
+                                        :selection-events="selectionEvents">
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
                                                 :key="value[trackBy]"
@@ -51,62 +52,59 @@
                                 v-if="loading"/>
                             <a class="delete is-small"
                                 v-on="clearEvents"
-                                v-if="visibleClearControl"/>
+                                v-if="clearControl"/>
                         </div>
                         <dropdown-indicator :open="visible" v-if="!disabled"/>
                     </button>
                 </template>
-                <template v-slot:controls>
+                <template v-slot:controls
+                    v-if="needsSearch">
                     <div class="dropdown-item search">
                         <input class="input"
                             type="text"
                             :placeholder="i18n(labels.search)"
                             v-bind="filterBindings"
-                            v-on="{ ...filterEvents, ...keyboardEvents }"
+                            v-on="filterEvents"
                             v-focus>
                     </div>
                 </template>
-                <template v-slot:options>
-                    <slot name="options"
-                        :options="options"
-                        :display-label="displayLabel"
-                        :is-selected="isSelected"
-                        :highlight="highlight">
-                        <a class="dropdown-item"
-                            v-for="(option, index) in options"
-                            :key="option[trackBy]"
-                            :class="{ 'is-active': currentIndex === index }"
-                            v-on="itemEvents(index)">
-                            <slot name="option"
-                                :option="option"
-                                :highlight="highlight">
-                                <span v-html="highlight(displayLabel(option))"/>
-                            </slot>
-                            <span class="label tag"
-                                :class="isSelected(option) ? 'is-warning' : 'is-success'"
-                                v-if="currentIndex === index && !disableClear">
-                                <span v-if="isSelected(option)">
-                                    {{ i18n(labels.deselect) }}
-                                </span>
-                                <span v-else>
-                                    {{ i18n(labels.select) }}
-                                </span>
+                <template v-slot:items="{ itemBindings, itemEvents }"
+                    v-if="hasOptions">
+                    <dropdown-item v-for="(option, index) in options"
+                        :key="option[trackBy]"
+                        v-bind="itemBindings(false, index)"
+                        v-on="itemEvents(index)"
+                        @select="select(index)">
+                        <slot name="option"
+                            :option="option"
+                            :highlight="highlight">
+                            <span v-html="highlight(displayLabel(option))"/>
+                        </slot>
+                        <span class="label tag"
+                            :class="isSelected(option) ? 'is-warning' : 'is-success'"
+                            v-if="isCurrent(index) && !disableClear">
+                            <span v-if="isSelected(option)">
+                                {{ i18n(labels.deselect) }}
                             </span>
-                            <span class="icon is-small selected has-text-success"
-                                v-else-if="isSelected(option)">
-                                <fa icon="check"/>
+                            <span v-else>
+                                {{ i18n(labels.select) }}
                             </span>
-                        </a>
-                    </slot>
-                    <a class="dropdown-item"
-                        v-on="taggableEvents"
-                        v-if="!hasOptions">
+                        </span>
+                        <span class="icon is-small selected has-text-success"
+                            v-else-if="isSelected(option)">
+                            <fa icon="check"/>
+                        </span>
+                    </dropdown-item>
+                </template>
+                <template v-slot:items
+                    v-else>
+                    <dropdown-item v-on="taggableEvents">
                         {{ i18n(labels.noResults) }}
                         <span class="label tag is-info"
                             v-if="taggable">
-                            {{ i18n(labels.addTag) }}
+                            {{ i18n(labels.add) }}
                         </span>
-                    </a>
+                    </dropdown-item>
                 </template>
             </dropdown>
         </template>
@@ -119,6 +117,7 @@ import { faCheck }
     from '@fortawesome/free-solid-svg-icons';
 import { focus, clickOutside } from '@enso-ui/directives';
 import Dropdown from '@enso-ui/dropdown/bulma';
+import DropdownItem from '@enso-ui/dropdown/src/bulma/DropdownItem.vue';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
@@ -131,7 +130,7 @@ export default {
     directives: { focus, clickOutside },
 
     components: {
-        CoreSelect, Dropdown, DropdownIndicator, Tag,
+        CoreSelect, Dropdown, DropdownItem, DropdownIndicator, Tag,
     },
 
     props: {
@@ -146,7 +145,7 @@ export default {
                 deselect: 'deselect',
                 noOptions: 'No options available',
                 noResults: 'No search results found',
-                addTag: 'Add option',
+                add: 'add',
                 search: 'Search...',
             }),
         },

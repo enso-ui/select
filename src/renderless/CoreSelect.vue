@@ -35,10 +35,6 @@ export default {
             type: String,
             default: 'name',
         },
-        paginate: {
-            type: Number,
-            default: 100,
-        },
         multiple: {
             type: Boolean,
             default: false,
@@ -50,6 +46,10 @@ export default {
         options: {
             type: Array,
             default: () => ([]),
+        },
+        paginate: {
+            type: Number,
+            default: 100,
         },
         params: {
             type: Object,
@@ -86,26 +86,19 @@ export default {
     },
 
     data: v => ({
-        internalValue: null,
-        optionList: v.options,
-        loading: false,
-        query: '',
-        currentIndex: 0,
         allowsSelection: true,
+        currentIndex: 0,
+        internalValue: null,
+        loading: false,
         ongoingRequest: null,
+        optionList: v.options,
+        query: '',
     }),
 
     computed: {
-        serverSide() {
-            return this.source !== null;
-        },
-        hasSelection() {
-            return this.multiple
-                ? this.value.length > 0
-                : this.value !== null;
-        },
-        hasOptions() {
-            return this.optionList.length > 0;
+        clearControl() {
+            return !this.disableClear && !this.readonly && !this.disabled
+                && !this.loading && this.hasSelection;
         },
         filteredOptions() {
             return this.query && !this.serverSide
@@ -115,6 +108,17 @@ export default {
         hasFilteredOptions() {
             return this.filteredOptions.length > 0;
         },
+        hasOptions() {
+            return this.optionList.length > 0;
+        },
+        hasSelection() {
+            return this.multiple
+                ? this.value.length > 0
+                : this.value !== null;
+        },
+        needsSearch() {
+            return this.serverSide || this.optionList.length > 10;
+        },
         selection() {
             return this.multiple
                 ? this.optionList.filter(option => this.value
@@ -122,14 +126,19 @@ export default {
                 : this.optionList
                     .find(option => this.valueMatchesOption(this.value, option)) || null;
         },
-        visibleClearControl() {
-            return !this.disableClear && !this.readonly && !this.disabled
-                && !this.loading && this.hasSelection;
+        serverSide() {
+            return this.source !== null;
         },
     },
 
     watch: {
-        query: 'fetchIfServerSide',
+        customParams: {
+            handler() {
+                this.allowsSelection = false;
+                this.fetch();
+            },
+            deep: true,
+        },
         options: {
             handler() {
                 this.optionList = this.options;
@@ -150,13 +159,7 @@ export default {
             },
             deep: true,
         },
-        customParams: {
-            handler() {
-                this.allowsSelection = false;
-                this.fetch();
-            },
-            deep: true,
-        },
+        query: 'fetchIfServerSide',
         source: {
             handler() {
                 this.optionList = this.options;
@@ -184,19 +187,45 @@ export default {
     },
 
     methods: {
-        init() {
-            if (!this.serverSide) {
-                this.$emit('selection', this.selection);
-                return;
+        addTag() {
+            if (this.taggable) {
+                this.$emit('add-tag', this.query);
+            }
+        },
+        bold(label, arg) {
+            let from;
+
+            try {
+                from = new RegExp(`(${arg})`, 'gi');
+            } catch {
+                from = arg;
             }
 
-            this.fetch();
-            this.fetch = debounce(this.fetch, this.debounce);
+            return `${label}`.replace(from, '<b>$1</b>');
         },
-        fetchIfServerSide() {
-            if (this.serverSide) {
-                this.fetch();
+        clear() {
+            this.update(this.multiple ? [] : null);
+            this.$emit('clear');
+        },
+        deselect(value) {
+            const index = this.value
+                .findIndex(val => val === value[this.trackBy]);
+
+            this.value.splice(index, 1);
+            this.update(this.value);
+            this.$emit('deselect', value);
+        },
+        displayLabel(option) {
+            if (!option) {
+                return null;
             }
+
+            const displayLabel = this.label.split('.')
+                .reduce((result, property) => result[property], option);
+
+            return this.translated
+                ? this.i18n(displayLabel)
+                : displayLabel;
         },
         fetch() {
             if (this.ongoingRequest) {
@@ -225,6 +254,75 @@ export default {
                 }
             });
         },
+        fetchIfServerSide() {
+            if (this.serverSide) {
+                this.fetch();
+            }
+        },
+        handleMultipleSelection(option) {
+            const index = this.value
+                .findIndex(val => this.valueMatchesOption(val, option));
+
+            this.updateMultipleSelection(index, option);
+            this.update(this.value);
+        },
+        handleSingleSelection(option) {
+            this.reset();
+
+            const selection = this.valueMatchesOption(this.value, option);
+
+            if (!selection) {
+                this.update(this.optionValue(option));
+                this.$emit('select', option[this.trackBy]);
+                return;
+            }
+
+            if (!this.disableClear) {
+                this.update(null);
+                this.$emit('deselect', option[this.trackBy]);
+            }
+        },
+        highlight(label) {
+            return this.query.toLowerCase().split(' ')
+                .filter(arg => arg !== '')
+                .reduce((label, arg) => this.bold(label, arg), label);
+        },
+        init() {
+            if (!this.serverSide) {
+                this.$emit('selection', this.selection);
+                return;
+            }
+
+            this.fetch();
+            this.fetch = debounce(this.fetch, this.debounce);
+        },
+        isCurrent(index) {
+            return this.currentIndex === index;
+        },
+        isSelected(option) {
+            return this.multiple
+                ? this.value.some(val => this.valueMatchesOption(val, option))
+                : this.valueMatchesOption(this.value, option);
+        },
+        matchesQuery(option) {
+            const label = this.displayLabel(option);
+
+            return this.query.toLowerCase().split(' ')
+                .filter(arg => arg !== '')
+                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
+        },
+        optionValue(option) {
+            return this.objects
+                ? option
+                : option[this.trackBy];
+        },
+        processOptions(options) {
+            this.optionList = options;
+
+            if (!this.query && this.hasSelection) {
+                this.updateSelection();
+            }
+        },
         requestParams() {
             return {
                 params: this.params,
@@ -245,12 +343,23 @@ export default {
                 ? this.value.map(value => value[this.trackBy])
                 : this.value[this.trackBy];
         },
-        processOptions(options) {
-            this.optionList = options;
-
-            if (!this.query && this.hasSelection) {
-                this.updateSelection();
+        reset() {
+            this.query = '';
+            this.currentIndex = 0;
+        },
+        select(index = null) {
+            if (!this.hasFilteredOptions || !this.allowsSelection) {
+                return;
             }
+
+            const option = this.filteredOptions[index || this.currentIndex];
+
+            if (this.multiple) {
+                this.handleMultipleSelection(option);
+                return;
+            }
+
+            this.handleSingleSelection(option);
         },
         update(value) {
             this.internalValue = value;
@@ -266,6 +375,11 @@ export default {
                 this.update(value);
             }
         },
+        valueMatchesOption(value, option) {
+            return value !== null && this.objects
+                ? value[this.trackBy] === option[this.trackBy]
+                : value === option[this.trackBy];
+        },
         valuesWhithinOptions() {
             return this.value.filter(val => this.optionList
                 .some(option => this.valueMatchesOption(val, option)));
@@ -276,42 +390,8 @@ export default {
                 ? this.value
                 : null;
         },
-        valueMatchesOption(value, option) {
-            return value !== null && this.objects
-                ? value[this.trackBy] === option[this.trackBy]
-                : value === option[this.trackBy];
-        },
-        matchesQuery(option) {
-            const label = this.displayLabel(option);
-
-            return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
-                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
-        },
-        reset() {
-            this.query = '';
-            this.currentIndex = 0;
-        },
-        select() {
-            if (!this.hasFilteredOptions || !this.allowsSelection) {
-                return;
-            }
-
-            const option = this.filteredOptions[this.currentIndex];
-
-            if (this.multiple) {
-                this.handleMultipleSelection(option);
-                return;
-            }
-
-            this.handleSingleSelection(option);
-        },
-        handleMultipleSelection(option) {
-            const index = this.value
-                .findIndex(val => this.valueMatchesOption(val, option));
-
-            this.updateMultipleSelection(index, option);
-            this.update(this.value);
+        updateCurrent(index) {
+            this.currentIndex = index;
         },
         updateMultipleSelection(index, option) {
             if (index >= 0) {
@@ -323,137 +403,47 @@ export default {
             this.value.push(this.optionValue(option));
             this.$emit('select', option[this.trackBy]);
         },
-        handleSingleSelection(option) {
-            this.reset();
-
-            const selection = this.valueMatchesOption(this.value, option);
-
-            if (!selection) {
-                this.update(this.optionValue(option));
-                this.$emit('select', option[this.trackBy]);
-                return;
-            }
-
-            if (!this.disableClear) {
-                this.update(null);
-                this.$emit('deselect', option[this.trackBy]);
-            }
-        },
-        optionValue(option) {
-            return this.objects
-                ? option
-                : option[this.trackBy];
-        },
-        clear() {
-            this.update(this.multiple ? [] : null);
-            this.$emit('clear');
-        },
-        highlight(label) {
-            return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
-                .reduce((label, arg) => this.bold(label, arg), label);
-        },
-        bold(label, arg) {
-            let from;
-
-            try {
-                from = new RegExp(`(${arg})`, 'gi');
-            } catch {
-                from = arg;
-            }
-
-            return `${label}`.replace(from, '<b>$1</b>');
-        },
-        deselect(value) {
-            const index = this.value
-                .findIndex(val => val === value[this.trackBy]);
-
-            this.value.splice(index, 1);
-            this.update(this.value);
-            this.$emit('deselect', value);
-        },
-        isSelected(option) {
-            return this.multiple
-                ? this.value.some(val => this.valueMatchesOption(val, option))
-                : this.valueMatchesOption(this.value, option);
-        },
-        nextIndex() {
-            if (this.loading || !this.hasFilteredOptions) {
-                return;
-            }
-
-            if (++this.currentIndex > this.filteredOptions.length - 1) {
-                this.currentIndex = 0;
-            }
-
-            this.scrollIntoView();
-        },
-        previousIndex() {
-            if (this.loading || !this.hasFilteredOptions) {
-                return;
-            }
-
-            if (--this.currentIndex < 0) {
-                this.currentIndex = this.filteredOptions.length - 1;
-            }
-
-            this.scrollIntoView();
-        },
-        updateCurrentIndex(index) {
-            this.currentIndex = index;
-        },
-        scrollIntoView() {
-            const options = this.$el.querySelectorAll('.dropdown-item:not(.search)');
-
-            options[this.currentIndex]
-                .scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        },
-        displayLabel(option) {
-            if (!option) {
-                return null;
-            }
-
-            const displayLabel = this.label.split('.')
-                .reduce((result, property) => result[property], option);
-
-            return this.translated
-                ? this.i18n(displayLabel)
-                : displayLabel;
-        },
-        addTag() {
-            if (this.taggable) {
-                this.$emit('add-tag', this.query);
-            }
-        },
     },
 
     render() {
         return this.$scopedSlots.default({
-            multiple: this.multiple,
-            taggable: this.taggable,
-            loading: this.loading,
-            disabled: this.disabled,
+            clearControl: this.clearControl,
+            clearEvents: {
+                click: (e) => {
+                    this.clear();
+                    e.stopPropagation();
+                },
+            },
             disableClear: this.disableClear,
-            visibleClearControl: this.visibleClearControl,
-            hasOptions: this.hasFilteredOptions,
-            query: this.query,
-            options: this.filteredOptions,
-            hasSelection: this.hasSelection,
-            selection: this.selection,
-            trackBy: this.trackBy,
-            currentIndex: this.currentIndex,
-            i18n: this.i18n,
+            disabled: this.disabled,
             displayLabel: this.displayLabel,
-            isSelected: this.isSelected,
+            dropdownDisabled: this.readonly || this.disabled
+                || (!this.hasOptions && !this.query),
+            filterBindings: {
+                value: this.query,
+            },
+            filterEvents: {
+                input: e => (this.query = e.target.value),
+                click: e => e.stopPropagation(),
+                keydown: (e) => {
+                    if (e.key === 'Enter' && this.taggable && !this.hasOptions && this.query) {
+                        this.addTag();
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                },
+            },
+            hasOptions: this.hasFilteredOptions,
+            hasSelection: this.hasSelection,
             highlight: this.highlight,
-            dropdownBindings: {
-                disabled: this.readonly || this.disabled
-                    || (!this.hasOptions && !this.query),
-                manual: this.multiple,
-            },
-            dropdownEvents: {
-                close: this.reset,
-            },
+            i18n: this.i18n,
+            isCurrent: this.isCurrent,
+            isSelected: this.isSelected,
+            loading: this.loading,
+            multiple: this.multiple,
+            needsSearch: this.needsSearch,
+            options: this.filteredOptions,
+            query: this.query,
             reloadEvents: {
                 click: () => {
                     if (!this.hasOptions && !this.readonly && !this.disabled) {
@@ -461,53 +451,24 @@ export default {
                     }
                 },
             },
-            filterBindings: {
-                value: this.query,
-            },
-            filterEvents: {
-                input: e => (this.query = e.target.value),
-                click: e => e.stopPropagation(),
-            },
-            keyboardEvents: {
-                keydown: (e) => {
-                    switch (e.key) {
-                    case 'ArrowDown':
-                        this.nextIndex();
-                        e.preventDefault();
-                        break;
-                    case 'ArrowUp':
-                        this.previousIndex();
-                        e.preventDefault();
-                        break;
-                    case 'Enter':
-                        this.select();
-                        e.preventDefault();
-                        break;
-                    default:
-                        break;
-                    }
-                },
-            },
-            itemEvents: index => ({
-                click: this.select,
-                mouseenter: () => this.updateCurrentIndex(index),
-            }),
+            reset: this.reset,
+            select: this.select,
+            selection: this.selection,
             selectionBindings: value => ({
+                trackBy: this.trackBy,
+                selection: this.selection,
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
             selectionEvents: value => ({
                 deselect: () => this.deselect(value),
             }),
-            clearEvents: {
-                mousedown: (e) => {
-                    this.clear();
-                    e.preventDefault();
-                },
-            },
+            taggable: this.taggable,
             taggableEvents: {
                 click: this.addTag,
             },
+            trackBy: this.trackBy,
+            updateCurrent: this.updateCurrent,
         });
     },
 };

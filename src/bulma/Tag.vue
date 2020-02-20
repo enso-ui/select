@@ -14,12 +14,12 @@ export default {
     name: 'Tag',
 
     props: {
-        label: {
-            type: String,
-            required: true,
-        },
         disabled: {
             type: Boolean,
+            required: true,
+        },
+        label: {
+            type: String,
             required: true,
         },
     },
