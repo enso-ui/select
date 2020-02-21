@@ -3,16 +3,15 @@
         v-on="$listeners"
         ref="select">
         <template v-slot:default="{
-                clearControl, clearEvents, dropdownDisabled, isCurrent, disableClear, disabled,
+                canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear, disabled,
                 displayLabel, filterBindings, filterEvents, hasOptions, hasSelection, highlight,
-                i18n, isSelected, multiple, needsSearch, reloadEvents, taggable, loading, options,
-                query, reset, selection, selectionBindings, selectionEvents, taggableEvents,
+                i18n, isSelected, multiple, needsSearch, noResults, reloadEvents, taggable, loading,
+                options, query, reset, selection, selectionBindings, selectionEvents, taggableEvents,
                 trackBy, select, updateCurrent,
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
-                :manual="multiple"
-                @update-index="updateCurrent"
+                :manual="multiple || canAddTag"
                 @hide="reset(); $refs.trigger.focus()">
                 <template v-slot:trigger="{ triggerEvents, visible }">
                     <button class="button input"
@@ -54,7 +53,8 @@
                                 v-on="clearEvents"
                                 v-if="clearControl"/>
                         </div>
-                        <dropdown-indicator :open="visible" v-if="!disabled"/>
+                        <dropdown-indicator :open="visible"
+                            v-if="!disabled"/>
                     </button>
                 </template>
                 <template v-slot:controls
@@ -68,42 +68,46 @@
                             v-focus>
                     </div>
                 </template>
-                <template v-slot:items="{ itemBindings, itemEvents }"
-                    v-if="hasOptions">
-                    <dropdown-item v-for="(option, index) in options"
-                        :key="option[trackBy]"
-                        v-bind="itemBindings(false, index)"
-                        v-on="itemEvents(index)"
-                        @select="select(index)">
-                        <slot name="option"
-                            :option="option"
-                            :highlight="highlight">
-                            <span v-html="highlight(displayLabel(option))"/>
-                        </slot>
-                        <span class="label tag"
-                            :class="isSelected(option) ? 'is-warning' : 'is-success'"
-                            v-if="isCurrent(index) && !disableClear">
-                            <span v-if="isSelected(option)">
-                                {{ i18n(labels.deselect) }}
-                            </span>
-                            <span v-else>
-                                {{ i18n(labels.select) }}
-                            </span>
-                        </span>
-                        <span class="icon is-small selected has-text-success"
-                            v-else-if="isSelected(option)">
-                            <fa icon="check"/>
-                        </span>
-                    </dropdown-item>
-                </template>
-                <template v-slot:items
-                    v-else>
-                    <dropdown-item v-on="taggableEvents">
-                        {{ i18n(labels.noResults) }}
-                        <span class="label tag is-info"
-                            v-if="taggable">
+                <template v-slot:items>
+                    <dropdown-item key="add-tag"
+                        :selected="false"
+                        v-on="taggableEvents"
+                        v-if="canAddTag">
+                        {{ query }}
+                        <span class="label tag is-info">
                             {{ i18n(labels.add) }}
                         </span>
+                    </dropdown-item>
+                    <dropdown-item v-for="(option, index) in options"
+                        :key="option[trackBy]"
+                        :selected="false"
+                        @select="select(index)"
+                        @update-index="updateCurrent(index)">
+                        <template v-slot:default="{ current }">
+                            <slot name="option"
+                                :option="option"
+                                :highlight="highlight">
+                                <span v-html="highlight(displayLabel(option))"/>
+                            </slot>
+                            <span class="label tag"
+                                :class="isSelected(option) ? 'is-warning' : 'is-success'"
+                                v-if="current && !disableClear">
+                                <span v-if="isSelected(option)">
+                                    {{ i18n(labels.deselect) }}
+                                </span>
+                                <span v-else>
+                                    {{ i18n(labels.select) }}
+                                </span>
+                            </span>
+                            <span class="icon is-small selected has-text-success"
+                                v-else-if="isSelected(option)">
+                                <fa icon="check"/>
+                            </span>
+                        </template>
+                    </dropdown-item>
+                    <dropdown-item key="no-results"
+                        v-if="!taggable && noResults">
+                        {{ i18n(labels.noResults) }}
                     </dropdown-item>
                 </template>
             </dropdown>
@@ -255,12 +259,6 @@ export default {
 
             .dropdown-content {
                 width: 100%;
-
-                .options {
-                    width: 100%;
-                    max-height: 12.4em;
-                    overflow: auto;
-                }
 
                 .dropdown-item {
                     text-overflow: ellipsis;

@@ -85,20 +85,28 @@ export default {
         },
     },
 
-    data: v => ({
+    data: () => ({
         allowsSelection: true,
-        currentIndex: 0,
         internalValue: null,
         loading: false,
         ongoingRequest: null,
-        optionList: v.options,
+        optionList: [],
+        dropdownDisabled: null,
         query: '',
     }),
 
     computed: {
+        canAddTag() {
+            return this.taggable && this.allowsSelection && !!this.query && !this.loading
+                && (!this.hasSelection || this.filteredOptionsEqualsSelection);
+        },
         clearControl() {
             return !this.disableClear && !this.readonly && !this.disabled
                 && !this.loading && this.hasSelection;
+        },
+        filteredOptionsEqualsSelection() {
+            return !this.multiple && this.filteredOptions.length === 1
+                || this.multiple && this.value.length === this.filteredOptions.length;
         },
         filteredOptions() {
             return this.query && !this.serverSide
@@ -119,6 +127,9 @@ export default {
         needsSearch() {
             return this.serverSide || this.optionList.length > 10;
         },
+        noResults() {
+            return !!this.query && !this.loading && !this.hasFilteredOptions;
+        },
         selection() {
             return this.multiple
                 ? this.optionList.filter(option => this.value
@@ -128,6 +139,10 @@ export default {
         },
         serverSide() {
             return this.source !== null;
+        },
+        shouldDisableDropdown() {
+            return this.readonly || this.disabled
+                || this.options.length === 0 && !this.query;
         },
     },
 
@@ -140,9 +155,7 @@ export default {
             deep: true,
         },
         options: {
-            handler() {
-                this.optionList = this.options;
-            },
+            handler: 'updateOptionList',
             deep: true,
         },
         params: {
@@ -162,7 +175,7 @@ export default {
         query: 'fetchIfServerSide',
         source: {
             handler() {
-                this.optionList = this.options;
+                this.updateOptionList(this.options);
                 this.fetchIfServerSide();
             },
         },
@@ -172,18 +185,17 @@ export default {
             }
 
             this.internalValue = null;
-
-            if (JSON.stringify(this.selection) !== JSON.stringify(value)) {
-                this.fetchIfServerSide();
-                return;
-            }
-
             this.$emit('selection', this.selection);
+
+            if (this.query) {
+                this.fetchIfServerSide();
+            }
         },
     },
 
     created() {
         this.init();
+        this.updateOptionList(this.options);
     },
 
     methods: {
@@ -243,7 +255,6 @@ export default {
             ).then(({ data }) => {
                 this.processOptions(data);
                 this.$emit('fetch', this.optionList);
-                this.$emit('selection', this.selection);
                 this.allowsSelection = true;
                 this.loading = false;
             }).catch((error) => {
@@ -256,6 +267,7 @@ export default {
         },
         fetchIfServerSide() {
             if (this.serverSide) {
+                this.allowsSelection = false;
                 this.fetch();
             }
         },
@@ -296,9 +308,6 @@ export default {
             this.fetch();
             this.fetch = debounce(this.fetch, this.debounce);
         },
-        isCurrent(index) {
-            return this.currentIndex === index;
-        },
         isSelected(option) {
             return this.multiple
                 ? this.value.some(val => this.valueMatchesOption(val, option))
@@ -317,7 +326,7 @@ export default {
                 : option[this.trackBy];
         },
         processOptions(options) {
-            this.optionList = options;
+            this.updateOptionList(options);
 
             if (!this.query && this.hasSelection) {
                 this.updateSelection();
@@ -345,14 +354,13 @@ export default {
         },
         reset() {
             this.query = '';
-            this.currentIndex = 0;
         },
-        select(index = null) {
-            if (!this.hasFilteredOptions || !this.allowsSelection) {
+        select(index) {
+            if (!this.allowsSelection) {
                 return;
             }
 
-            const option = this.filteredOptions[index || this.currentIndex];
+            const option = this.filteredOptions[index];
 
             if (this.multiple) {
                 this.handleMultipleSelection(option);
@@ -390,9 +398,6 @@ export default {
                 ? this.value
                 : null;
         },
-        updateCurrent(index) {
-            this.currentIndex = index;
-        },
         updateMultipleSelection(index, option) {
             if (index >= 0) {
                 this.value.splice(index, 1);
@@ -403,10 +408,15 @@ export default {
             this.value.push(this.optionValue(option));
             this.$emit('select', option[this.trackBy]);
         },
+        updateOptionList(options) {
+            this.optionList = options;
+            this.dropdownDisabled = this.shouldDisableDropdown;
+        },
     },
 
     render() {
         return this.$scopedSlots.default({
+            canAddTag: this.canAddTag,
             clearControl: this.clearControl,
             clearEvents: {
                 click: (e) => {
@@ -417,11 +427,8 @@ export default {
             disableClear: this.disableClear,
             disabled: this.disabled,
             displayLabel: this.displayLabel,
-            dropdownDisabled: this.readonly || this.disabled
-                || (!this.hasOptions && !this.query),
-            filterBindings: {
-                value: this.query,
-            },
+            dropdownDisabled: this.dropdownDisabled,
+            filterBindings: { value: this.query },
             filterEvents: {
                 input: e => (this.query = e.target.value),
                 click: e => e.stopPropagation(),
@@ -437,11 +444,11 @@ export default {
             hasSelection: this.hasSelection,
             highlight: this.highlight,
             i18n: this.i18n,
-            isCurrent: this.isCurrent,
             isSelected: this.isSelected,
             loading: this.loading,
             multiple: this.multiple,
             needsSearch: this.needsSearch,
+            noResults: this.noResults,
             options: this.filteredOptions,
             query: this.query,
             reloadEvents: {
@@ -455,8 +462,6 @@ export default {
             select: this.select,
             selection: this.selection,
             selectionBindings: value => ({
-                trackBy: this.trackBy,
-                selection: this.selection,
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
@@ -464,9 +469,7 @@ export default {
                 deselect: () => this.deselect(value),
             }),
             taggable: this.taggable,
-            taggableEvents: {
-                click: this.addTag,
-            },
+            taggableEvents: { select: this.addTag },
             trackBy: this.trackBy,
             updateCurrent: this.updateCurrent,
         });
