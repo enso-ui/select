@@ -471,7 +471,6 @@ export default {
             taggable: this.taggable,
             taggableEvents: { select: this.addTag },
             trackBy: this.trackBy,
-            updateCurrent: this.updateCurrent,
         });
     },
 };

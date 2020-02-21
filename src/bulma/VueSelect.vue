@@ -81,8 +81,7 @@
                     <dropdown-item v-for="(option, index) in options"
                         :key="option[trackBy]"
                         :selected="false"
-                        @select="select(index)"
-                        @update-index="updateCurrent(index)">
+                        @select="select(index)">
                         <template v-slot:default="{ current }">
                             <slot name="option"
                                 :option="option"
