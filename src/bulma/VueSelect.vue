@@ -12,7 +12,7 @@
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
                 :manual="multiple || canAddTag"
-                @hide="reset(); $refs.trigger.focus()">
+                @hide="reset()">
                 <template v-slot:trigger="{ triggerEvents, open }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
@@ -267,7 +267,7 @@ export default {
                     padding: 0.375rem 2rem 0.375rem 0.6rem;
 
                     &.search {
-                        padding-top: 0;
+                        padding: 0 0.375rem 0.6rem;
 
                         .input {
                             height: 2em;
