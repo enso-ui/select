@@ -3,11 +3,11 @@
         v-on="$listeners"
         ref="select">
         <template v-slot:default="{
-                canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear, disabled,
-                displayLabel, filterBindings, filterEvents, hasOptions, hasSelection, highlight,
-                i18n, isSelected, multiple, needsSearch, noResults, reloadEvents, taggable, loading,
-                options, query, reset, selection, selectionBindings, selectionEvents, taggableEvents,
-                trackBy, select, updateCurrent,
+                canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
+                disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
+                highlight, i18n, isSelected, multiple, needsSearch, noResults, reloadEvents,
+                taggable, loading, options, query, reset, selection, selectionBindings,
+                selectionEvents, taggableEvents, trackBy, select, updateCurrent,
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
@@ -53,8 +53,7 @@
                                 v-on="clearEvents"
                                 v-if="clearControl"/>
                         </div>
-                        <dropdown-indicator :open="visible"
-                            v-if="!disabled"/>
+                        <dropdown-indicator :open="visible" v-if="!disabled"/>
                     </button>
                 </template>
                 <template v-slot:controls
@@ -81,7 +80,8 @@
                     <dropdown-item v-for="(option, index) in options"
                         :key="option[trackBy]"
                         :selected="false"
-                        @select="select(index)">
+                        @select="select(index)"
+                        @update-index="updateCurrent(index)">
                         <template v-slot:default="{ current }">
                             <slot name="option"
                                 :option="option"
@@ -105,6 +105,7 @@
                         </template>
                     </dropdown-item>
                     <dropdown-item key="no-results"
+                        class="mumu"
                         v-if="!taggable && noResults">
                         {{ i18n(labels.noResults) }}
                     </dropdown-item>
@@ -263,8 +264,7 @@ export default {
                     text-overflow: ellipsis;
                     overflow-x: hidden;
                     white-space: nowrap;
-                    text-overflow: ellipsis;
-                    padding: 0.375rem 0.6rem;
+                    padding: 0.375rem 2rem 0.375rem 0.6rem;
 
                     &.search {
                         padding-top: 0;

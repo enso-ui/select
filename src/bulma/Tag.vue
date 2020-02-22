@@ -1,11 +1,13 @@
 <template>
     <div class="vue-select tags has-addons">
         <span class="tag is-link">
-            {{ label }}
-        </span>
-        <a class="tag is-delete"
-            @click.stop="$emit('deselect')"
-            v-if="!disabled"/>
+            <span class="has-margin-right-small tag-label">
+                {{ label }}
+            </span>
+            <a class="tag is-delete"
+                @click.stop="$emit('deselect')"
+                v-if="!disabled"/>
+            </span>
     </div>
 </template>
 
@@ -28,6 +30,7 @@ export default {
 
 <style lang="scss">
     .vue-select.tags {
+        max-width: 100%;
         [dir='ltr'] & {
             margin-right: 0.3em;
         }
@@ -40,13 +43,26 @@ export default {
         }
 
         .tag {
-            padding: 0.5em;
+            max-width: inherit;
+            [dir='ltr'] & {
+                padding: 0.5em 0 0.5em 0.5em;
+            }
+            [dir='rtl'] & {
+                padding: 0.5em 0.5em 0.5em 0;
+            }
             height: 1.35em;
             font-size: 1em;
             margin: 0.075em 0 0.075em;
 
-            &:not(body).is-delete {
+            .tag-label {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .tag.is-delete {
                 width: 1.4em;
+                flex: none;
             }
         }
     }
