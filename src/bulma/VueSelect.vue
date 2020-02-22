@@ -13,7 +13,7 @@
                 :disabled="dropdownDisabled"
                 :manual="multiple || canAddTag"
                 @hide="reset(); $refs.trigger.focus()">
-                <template v-slot:trigger="{ triggerEvents, visible }">
+                <template v-slot:trigger="{ triggerEvents, open }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
@@ -53,7 +53,7 @@
                                 v-on="clearEvents"
                                 v-if="clearControl"/>
                         </div>
-                        <dropdown-indicator :open="visible" v-if="!disabled"/>
+                        <dropdown-indicator :open="open" v-if="!disabled"/>
                     </button>
                 </template>
                 <template v-slot:controls
