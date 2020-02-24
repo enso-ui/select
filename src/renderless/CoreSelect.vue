@@ -142,7 +142,7 @@ export default {
         },
         shouldDisableDropdown() {
             return this.readonly || this.disabled
-                || this.options.length === 0 && !this.query;
+                || this.optionList.length === 0 && !this.query;
         },
     },
 
@@ -173,11 +173,12 @@ export default {
             deep: true,
         },
         query: 'fetchIfServerSide',
-        source: {
-            handler() {
-                this.updateOptionList(this.options);
-                this.fetchIfServerSide();
-            },
+        selection() {
+            this.$emit('selection', this.selection);
+        },
+        source() {
+            this.updateOptionList(this.options);
+            this.fetchIfServerSide();
         },
         value(value) {
             if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
@@ -185,7 +186,6 @@ export default {
             }
 
             this.internalValue = null;
-            this.$emit('selection', this.selection);
 
             if (this.query) {
                 this.fetchIfServerSide();
@@ -300,13 +300,8 @@ export default {
                 .reduce((label, arg) => this.bold(label, arg), label);
         },
         init() {
-            if (!this.serverSide) {
-                this.$emit('selection', this.selection);
-                return;
-            }
-
-            this.fetch();
             this.fetch = debounce(this.fetch, this.debounce);
+            this.fetchIfServerSide();
         },
         isSelected(option) {
             return this.multiple
