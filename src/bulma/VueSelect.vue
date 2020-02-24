@@ -5,9 +5,9 @@
         <template v-slot:default="{
                 canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
-                highlight, i18n, isSelected, multiple, needsSearch, noResults, reloadEvents,
-                taggable, loading, options, query, reset, selection, selectionBindings,
-                selectionEvents, taggableEvents, trackBy, select, updateCurrent,
+                highlight, i18n, isSelected, itemBindings, itemEvents, multiple, needsSearch,
+                noResults, reloadEvents, loading, options, query, reset, selection, selectionBindings,
+                selectionEvents, taggable, taggableBindings, taggableEvents,
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
@@ -31,7 +31,6 @@
                                         :selection-events="selectionEvents">
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
-                                                :key="value[trackBy]"
                                                 v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>
@@ -69,7 +68,7 @@
                 </template>
                 <template v-slot:items>
                     <dropdown-item key="add-tag"
-                        :selected="false"
+                        v-bind="taggableBindings"
                         v-on="taggableEvents"
                         v-if="canAddTag">
                         {{ query }}
@@ -78,10 +77,8 @@
                         </span>
                     </dropdown-item>
                     <dropdown-item v-for="(option, index) in options"
-                        :key="option[trackBy]"
-                        :selected="false"
-                        @select="select(index)"
-                        @update-index="updateCurrent(index)">
+                        v-bind="itemBindings(index)"
+                        v-on="itemEvents(index)">
                         <template v-slot:default="{ current }">
                             <slot name="option"
                                 :option="option"
@@ -105,7 +102,6 @@
                         </template>
                     </dropdown-item>
                     <dropdown-item key="no-results"
-                        class="mumu"
                         v-if="!taggable && noResults">
                         {{ i18n(labels.noResults) }}
                     </dropdown-item>
@@ -238,7 +234,7 @@ export default {
                         height: 1em;
                         position: relative;
                         width: 1em;
-                        position: absolute!important;
+                        position: absolute !important;
                         top: .55em;
                         z-index: 4;
                         [dir='ltr'] & {

@@ -97,16 +97,12 @@ export default {
 
     computed: {
         canAddTag() {
-            return this.taggable && this.allowsSelection && !!this.query && !this.loading
-                && (!this.hasSelection || this.filteredOptionsEqualsSelection);
+            return this.taggable && this.allowsSelection
+                && !!this.query && !this.loading && this.queryDoesntMatch;
         },
         clearControl() {
             return !this.disableClear && !this.readonly && !this.disabled
                 && !this.loading && this.hasSelection;
-        },
-        filteredOptionsEqualsSelection() {
-            return !this.multiple && this.filteredOptions.length === 1
-                || this.multiple && this.value.length === this.filteredOptions.length;
         },
         filteredOptions() {
             return this.query && !this.serverSide
@@ -129,6 +125,11 @@ export default {
         },
         noResults() {
             return !!this.query && !this.loading && !this.hasFilteredOptions;
+        },
+        queryDoesntMatch() {
+            return !this.filteredOptions
+                .some(option => `${this.displayLabel(option)}`
+                    .toLowerCase() === this.query.toLowerCase());
         },
         selection() {
             return this.multiple
@@ -440,6 +441,13 @@ export default {
             highlight: this.highlight,
             i18n: this.i18n,
             isSelected: this.isSelected,
+            itemBindings: index => ({
+                key: this.filteredOptions[index][this.trackBy],
+                selected: false,
+            }),
+            itemEvents: index => ({
+                select: () => this.select(index),
+            }),
             loading: this.loading,
             multiple: this.multiple,
             needsSearch: this.needsSearch,
@@ -457,6 +465,7 @@ export default {
             select: this.select,
             selection: this.selection,
             selectionBindings: value => ({
+                key: value[this.trackBy],
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
@@ -464,6 +473,10 @@ export default {
                 deselect: () => this.deselect(value),
             }),
             taggable: this.taggable,
+            taggableBindings: {
+                index: 0,
+                selected: false,
+            },
             taggableEvents: { select: this.addTag },
             trackBy: this.trackBy,
         });
