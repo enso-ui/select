@@ -5,9 +5,9 @@
         <template v-slot:default="{
                 canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
-                highlight, i18n, isSelected, itemBindings, itemEvents, multiple, needsSearch,
-                noResults, reloadEvents, loading, options, query, reset, selection, selectionBindings,
-                selectionEvents, taggable, taggableBindings, taggableEvents,
+                highlight, i18n, isSelected, itemEvents, multiple, needsSearch, noResults,
+                reloadEvents, loading, options, query, reset, selected, selection, selectionBindings,
+                selectionEvents, taggable, taggableBindings, taggableEvents, trackBy,
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
@@ -31,6 +31,7 @@
                                         :selection-events="selectionEvents">
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
+                                                :key="value[trackBy]",
                                                 v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>
@@ -77,7 +78,8 @@
                         </span>
                     </dropdown-item>
                     <dropdown-item v-for="(option, index) in options"
-                        v-bind="itemBindings(index)"
+                        :key="option[trackBy]"
+                        :selected="false"
                         v-on="itemEvents(index)">
                         <template v-slot:default="{ current }">
                             <slot name="option"

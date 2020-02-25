@@ -441,10 +441,6 @@ export default {
             highlight: this.highlight,
             i18n: this.i18n,
             isSelected: this.isSelected,
-            itemBindings: index => ({
-                key: this.filteredOptions[index][this.trackBy],
-                selected: false,
-            }),
             itemEvents: index => ({
                 select: () => this.select(index),
             }),
@@ -463,9 +459,9 @@ export default {
             },
             reset: this.reset,
             select: this.select,
+            selected: this.selected,
             selection: this.selection,
             selectionBindings: value => ({
-                key: value[this.trackBy],
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
