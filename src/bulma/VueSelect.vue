@@ -31,7 +31,7 @@
                                         :selection-events="selectionEvents">
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
-                                                :key="value[trackBy]",
+                                                :key="value[trackBy]"
                                                 v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>
