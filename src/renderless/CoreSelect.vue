@@ -3,7 +3,6 @@ import debounce from 'lodash/debounce';
 
 export default {
     name: 'CoreSelect',
-
     props: {
         customParams: {
             type: Object,
@@ -29,7 +28,7 @@ export default {
         },
         i18n: {
             type: Function,
-            default: v => v,
+            default: (v) => v,
         },
         label: {
             type: String,
@@ -84,17 +83,14 @@ export default {
             required: true,
         },
     },
-
-    data: () => ({
+    data: (v) => ({
         allowsSelection: true,
         internalValue: null,
         loading: false,
         ongoingRequest: null,
-        optionList: [],
-        dropdownDisabled: null,
+        optionList: v.options,
         query: '',
     }),
-
     computed: {
         canAddTag() {
             return this.taggable && this.allowsSelection
@@ -106,7 +102,7 @@ export default {
         },
         filteredOptions() {
             return this.query && !this.serverSide
-                ? this.optionList.filter(option => this.matchesQuery(option))
+                ? this.optionList.filter((option) => this.matchesQuery(option))
                 : this.optionList;
         },
         hasFilteredOptions() {
@@ -128,25 +124,24 @@ export default {
         },
         queryDoesntMatch() {
             return !this.filteredOptions
-                .some(option => `${this.displayLabel(option)}`
+                .some((option) => `${this.displayLabel(option)}`
                     .toLowerCase() === this.query.toLowerCase());
         },
         selection() {
             return this.multiple
-                ? this.optionList.filter(option => this.value
-                    .some(val => this.valueMatchesOption(val, option)))
+                ? this.optionList.filter((option) => this.value
+                    .some((val) => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find(option => this.valueMatchesOption(this.value, option)) || null;
+                    .find((option) => this.valueMatchesOption(this.value, option)) || null;
         },
         serverSide() {
             return this.source !== null;
         },
-        shouldDisableDropdown() {
+        dropdownDisabled() {
             return this.readonly || this.disabled
                 || this.optionList.length === 0 && !this.query;
         },
     },
-
     watch: {
         customParams: {
             handler() {
@@ -156,7 +151,9 @@ export default {
             deep: true,
         },
         options: {
-            handler: 'updateOptionList',
+            handler(options) {
+                this.optionList = options;
+            },
             deep: true,
         },
         params: {
@@ -178,27 +175,22 @@ export default {
             this.$emit('selection', this.selection);
         },
         source() {
-            this.updateOptionList(this.options);
+            this.optionList = this.options;
             this.fetchIfServerSide();
         },
         value(value) {
             if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
                 this.$emit('input', value);
             }
-
             this.internalValue = null;
-
             if (this.query) {
                 this.fetchIfServerSide();
             }
         },
     },
-
     created() {
         this.init();
-        this.updateOptionList(this.options);
     },
-
     methods: {
         addTag() {
             if (this.taggable) {
@@ -207,13 +199,11 @@ export default {
         },
         bold(label, arg) {
             let from;
-
             try {
                 from = new RegExp(`(${arg})`, 'gi');
             } catch {
                 from = arg;
             }
-
             return `${label}`.replace(from, '<b>$1</b>');
         },
         clear() {
@@ -222,8 +212,7 @@ export default {
         },
         deselect(value) {
             const index = this.value
-                .findIndex(val => val === value[this.trackBy]);
-
+                .findIndex((val) => val === value[this.trackBy]);
             this.value.splice(index, 1);
             this.update(this.value);
             this.$emit('deselect', value);
@@ -232,10 +221,8 @@ export default {
             if (!option) {
                 return null;
             }
-
             const displayLabel = this.label.split('.')
                 .reduce((result, property) => result[property], option);
-
             return this.translated
                 ? this.i18n(displayLabel)
                 : displayLabel;
@@ -244,10 +231,8 @@ export default {
             if (this.ongoingRequest) {
                 this.ongoingRequest.cancel();
             }
-
             this.ongoingRequest = axios.CancelToken.source();
             this.loading = true;
-
             axios.get(
                 this.source, {
                     params: this.requestParams(),
@@ -260,7 +245,6 @@ export default {
                 this.loading = false;
             }).catch((error) => {
                 this.loading = false;
-
                 if (!axios.isCancel(error)) {
                     this.errorHandler(error);
                 }
@@ -274,22 +258,18 @@ export default {
         },
         handleMultipleSelection(option) {
             const index = this.value
-                .findIndex(val => this.valueMatchesOption(val, option));
-
+                .findIndex((val) => this.valueMatchesOption(val, option));
             this.updateMultipleSelection(index, option);
             this.update(this.value);
         },
         handleSingleSelection(option) {
             this.reset();
-
             const selection = this.valueMatchesOption(this.value, option);
-
             if (!selection) {
                 this.update(this.optionValue(option));
                 this.$emit('select', option[this.trackBy]);
                 return;
             }
-
             if (!this.disableClear) {
                 this.update(null);
                 this.$emit('deselect', option[this.trackBy]);
@@ -297,7 +277,7 @@ export default {
         },
         highlight(label) {
             return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
+                .filter((arg) => arg !== '')
                 .reduce((label, arg) => this.bold(label, arg), label);
         },
         init() {
@@ -306,15 +286,14 @@ export default {
         },
         isSelected(option) {
             return this.multiple
-                ? this.value.some(val => this.valueMatchesOption(val, option))
+                ? this.value.some((val) => this.valueMatchesOption(val, option))
                 : this.valueMatchesOption(this.value, option);
         },
         matchesQuery(option) {
             const label = this.displayLabel(option);
-
             return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
-                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
+                .filter((arg) => arg !== '')
+                .every((arg) => `${label}`.toLowerCase().indexOf(arg) >= 0);
         },
         optionValue(option) {
             return this.objects
@@ -322,8 +301,7 @@ export default {
                 : option[this.trackBy];
         },
         processOptions(options) {
-            this.updateOptionList(options);
-
+            this.optionList = options;
             if (!this.query && this.hasSelection) {
                 this.updateSelection();
             }
@@ -343,9 +321,8 @@ export default {
             if (!this.objects) {
                 return this.value;
             }
-
             return this.multiple
-                ? this.value.map(value => value[this.trackBy])
+                ? this.value.map((value) => value[this.trackBy])
                 : this.value[this.trackBy];
         },
         reset() {
@@ -355,14 +332,11 @@ export default {
             if (!this.allowsSelection) {
                 return;
             }
-
             const option = this.filteredOptions[index];
-
             if (this.multiple) {
                 this.handleMultipleSelection(option);
                 return;
             }
-
             this.handleSingleSelection(option);
         },
         update(value) {
@@ -374,7 +348,6 @@ export default {
             const value = this.multiple
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
-
             if (JSON.stringify(value) !== JSON.stringify(this.value)) {
                 this.update(value);
             }
@@ -385,12 +358,12 @@ export default {
                 : value === option[this.trackBy];
         },
         valuesWhithinOptions() {
-            return this.value.filter(val => this.optionList
-                .some(option => this.valueMatchesOption(val, option)));
+            return this.value.filter((val) => this.optionList
+                .some((option) => this.valueMatchesOption(val, option)));
         },
         valueWhithinOptions() {
             return this.optionList
-                .some(option => this.valueMatchesOption(this.value, option))
+                .some((option) => this.valueMatchesOption(this.value, option))
                 ? this.value
                 : null;
         },
@@ -400,16 +373,10 @@ export default {
                 this.$emit('deselect', option[this.trackBy]);
                 return;
             }
-
             this.value.push(this.optionValue(option));
             this.$emit('select', option[this.trackBy]);
         },
-        updateOptionList(options) {
-            this.optionList = options;
-            this.dropdownDisabled = this.shouldDisableDropdown;
-        },
     },
-
     render() {
         return this.$scopedSlots.default({
             canAddTag: this.canAddTag,
@@ -426,8 +393,8 @@ export default {
             dropdownDisabled: this.dropdownDisabled,
             filterBindings: { value: this.query },
             filterEvents: {
-                input: e => (this.query = e.target.value),
-                click: e => e.stopPropagation(),
+                input: (e) => (this.query = e.target.value),
+                click: (e) => e.stopPropagation(),
                 keydown: (e) => {
                     if (e.key === 'Enter' && this.taggable && !this.hasOptions && this.query) {
                         this.addTag();
@@ -441,7 +408,7 @@ export default {
             highlight: this.highlight,
             i18n: this.i18n,
             isSelected: this.isSelected,
-            itemEvents: index => ({
+            itemEvents: (index) => ({
                 select: () => this.select(index),
             }),
             loading: this.loading,
@@ -461,11 +428,11 @@ export default {
             select: this.select,
             selected: this.selected,
             selection: this.selection,
-            selectionBindings: value => ({
+            selectionBindings: (value) => ({
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
-            selectionEvents: value => ({
+            selectionEvents: (value) => ({
                 deselect: () => this.deselect(value),
             }),
             taggable: this.taggable,
