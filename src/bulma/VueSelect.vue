@@ -6,7 +6,7 @@
                 canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
                 highlight, i18n, isSelected, itemEvents, multiple, needsSearch, noResults,
-                reloadEvents, loading, options, query, reset, selected, selection, selectionBindings,
+                reload, loading, options, query, reset, selected, selection, selectionBindings,
                 selectionEvents, taggable, taggableBindings, taggableEvents, trackBy,
             }">
             <dropdown class="vue-select"
@@ -18,10 +18,10 @@
                         :class="{ 'has-error': hasError }"
                         type="button"
                         :disabled="disabled"
+                        @click="reload"
                         v-on="triggerEvents"
                         ref="trigger">
-                        <div class="control-display"
-                            v-on="reloadEvents">
+                        <div class="control-display">
                             <div class="field is-grouped is-grouped-multiline"
                                 v-if="hasSelection">
                                 <div class="control">

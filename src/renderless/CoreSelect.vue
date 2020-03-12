@@ -2,7 +2,9 @@
 import debounce from 'lodash/debounce';
 
 export default {
+
     name: 'CoreSelect',
+
     props: {
         customParams: {
             type: Object,
@@ -62,6 +64,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        searchLimit: {
+            type: Number,
+            default: 10,
+        },
         source: {
             type: String,
             default: null,
@@ -83,6 +89,7 @@ export default {
             required: true,
         },
     },
+
     data: (v) => ({
         allowsSelection: true,
         internalValue: null,
@@ -91,6 +98,7 @@ export default {
         optionList: v.options,
         query: '',
     }),
+
     computed: {
         canAddTag() {
             return this.taggable && this.allowsSelection
@@ -117,7 +125,7 @@ export default {
                 : this.value !== null;
         },
         needsSearch() {
-            return this.serverSide || this.optionList.length > 10;
+            return this.serverSide || this.optionList.length >= this.searchLimit;
         },
         noResults() {
             return !!this.query && !this.loading && !this.hasFilteredOptions;
@@ -139,9 +147,10 @@ export default {
         },
         dropdownDisabled() {
             return this.readonly || this.disabled
-                || this.optionList.length === 0 && !this.query;
+                || !this.hasOptions && !this.query;
         },
     },
+
     watch: {
         customParams: {
             handler() {
@@ -188,9 +197,11 @@ export default {
             }
         },
     },
+
     created() {
         this.init();
     },
+
     methods: {
         addTag() {
             if (this.taggable) {
@@ -199,11 +210,13 @@ export default {
         },
         bold(label, arg) {
             let from;
+
             try {
                 from = new RegExp(`(${arg})`, 'gi');
             } catch {
                 from = arg;
             }
+
             return `${label}`.replace(from, '<b>$1</b>');
         },
         clear() {
@@ -213,6 +226,7 @@ export default {
         deselect(value) {
             const index = this.value
                 .findIndex((val) => val === value[this.trackBy]);
+
             this.value.splice(index, 1);
             this.update(this.value);
             this.$emit('deselect', value);
@@ -221,8 +235,10 @@ export default {
             if (!option) {
                 return null;
             }
+
             const displayLabel = this.label.split('.')
                 .reduce((result, property) => result[property], option);
+
             return this.translated
                 ? this.i18n(displayLabel)
                 : displayLabel;
@@ -231,14 +247,14 @@ export default {
             if (this.ongoingRequest) {
                 this.ongoingRequest.cancel();
             }
+
             this.ongoingRequest = axios.CancelToken.source();
             this.loading = true;
-            axios.get(
-                this.source, {
-                    params: this.requestParams(),
-                    cancelToken: this.ongoingRequest.token,
-                },
-            ).then(({ data }) => {
+
+            axios.get(this.source, {
+                params: this.requestParams(),
+                cancelToken: this.ongoingRequest.token,
+            }).then(({ data }) => {
                 this.processOptions(data);
                 this.$emit('fetch', this.optionList);
                 this.allowsSelection = true;
@@ -259,17 +275,21 @@ export default {
         handleMultipleSelection(option) {
             const index = this.value
                 .findIndex((val) => this.valueMatchesOption(val, option));
+
             this.updateMultipleSelection(index, option);
             this.update(this.value);
         },
         handleSingleSelection(option) {
             this.reset();
+
             const selection = this.valueMatchesOption(this.value, option);
+
             if (!selection) {
                 this.update(this.optionValue(option));
                 this.$emit('select', option[this.trackBy]);
                 return;
             }
+
             if (!this.disableClear) {
                 this.update(null);
                 this.$emit('deselect', option[this.trackBy]);
@@ -291,6 +311,7 @@ export default {
         },
         matchesQuery(option) {
             const label = this.displayLabel(option);
+
             return this.query.toLowerCase().split(' ')
                 .filter((arg) => arg !== '')
                 .every((arg) => `${label}`.toLowerCase().indexOf(arg) >= 0);
@@ -302,8 +323,14 @@ export default {
         },
         processOptions(options) {
             this.optionList = options;
+
             if (!this.query && this.hasSelection) {
                 this.updateSelection();
+            }
+        },
+        reload() {
+            if (!this.hasOptions && !this.readonly && !this.disabled) {
+                this.fetch();
             }
         },
         requestParams() {
@@ -321,6 +348,7 @@ export default {
             if (!this.objects) {
                 return this.value;
             }
+
             return this.multiple
                 ? this.value.map((value) => value[this.trackBy])
                 : this.value[this.trackBy];
@@ -332,11 +360,14 @@ export default {
             if (!this.allowsSelection) {
                 return;
             }
+
             const option = this.filteredOptions[index];
+
             if (this.multiple) {
                 this.handleMultipleSelection(option);
                 return;
             }
+
             this.handleSingleSelection(option);
         },
         update(value) {
@@ -348,6 +379,7 @@ export default {
             const value = this.multiple
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
+
             if (JSON.stringify(value) !== JSON.stringify(this.value)) {
                 this.update(value);
             }
@@ -373,10 +405,12 @@ export default {
                 this.$emit('deselect', option[this.trackBy]);
                 return;
             }
+
             this.value.push(this.optionValue(option));
             this.$emit('select', option[this.trackBy]);
         },
     },
+
     render() {
         return this.$scopedSlots.default({
             canAddTag: this.canAddTag,
@@ -417,13 +451,7 @@ export default {
             noResults: this.noResults,
             options: this.filteredOptions,
             query: this.query,
-            reloadEvents: {
-                click: () => {
-                    if (!this.hasOptions && !this.readonly && !this.disabled) {
-                        this.fetch();
-                    }
-                },
-            },
+            reload: this.reload,
             reset: this.reset,
             select: this.select,
             selected: this.selected,
