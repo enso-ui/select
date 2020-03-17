@@ -76,7 +76,7 @@ export default {
         },
         searchModes: {
             type: Array,
-            default: () => Modes,
+            default: () => ['full'],
             validator: (v) => v.every((mode) => Modes.includes(mode)),
         },
         source: {
