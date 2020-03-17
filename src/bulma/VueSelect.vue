@@ -92,6 +92,7 @@
                             <slot name="option"
                                 :option="option"
                                 :highlight="highlight">
+                                <!-- eslint-disable-next-line vue/no-v-html -->
                                 <span v-html="highlight(displayLabel(option))"/>
                             </slot>
                             <span class="label tag"
@@ -127,8 +128,8 @@ import { faCheck }
 import { focus, clickOutside } from '@enso-ui/directives';
 import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
+import SearchMode from '@enso-ui/search-mode/bulma';
 import CoreSelect from '../renderless/CoreSelect.vue';
-import SearchMode from '../../../typeahead/src/bulma/SearchMode.vue';
 import Tag from './Tag.vue';
 
 library.add(faCheck);
