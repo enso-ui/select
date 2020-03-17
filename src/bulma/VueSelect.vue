@@ -5,9 +5,10 @@
         <template v-slot:default="{
                 canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
-                highlight, i18n, isSelected, itemEvents, multiple, needsSearch, noResults,
-                reload, loading, options, query, reset, selected, selection, selectionBindings,
-                selectionEvents, taggable, taggableBindings, taggableEvents, trackBy,
+                highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
+                multiple, needsSearch, noResults, reload, loading, options, query, reset, selected,
+                selection, selectionBindings, selectionEvents, taggable, taggableBindings,
+                taggableEvents, trackBy,
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
@@ -59,12 +60,18 @@
                 <template v-slot:controls
                     v-if="needsSearch">
                     <div class="dropdown-item search">
-                        <input class="input"
-                            type="text"
-                            :placeholder="i18n(labels.search)"
-                            v-bind="filterBindings"
-                            v-on="filterEvents"
-                            v-focus>
+                        <div class="control has-icons-right">
+                            <input class="input"
+                                type="text"
+                                :placeholder="i18n(labels.search)"
+                                v-bind="filterBindings"
+                                v-on="filterEvents"
+                                v-focus>
+                            <search-mode class="is-right icon is-small search-mode"
+                                v-bind="modeBindings"
+                                v-on="modeEvents"
+                                v-if="modeSelector"/>
+                        </div>
                     </div>
                 </template>
                 <template v-slot:items>
@@ -121,6 +128,7 @@ import { focus, clickOutside } from '@enso-ui/directives';
 import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import CoreSelect from '../renderless/CoreSelect.vue';
+import SearchMode from '../../../typeahead/src/bulma/SearchMode.vue';
 import Tag from './Tag.vue';
 
 library.add(faCheck);
@@ -131,7 +139,7 @@ export default {
     directives: { focus, clickOutside },
 
     components: {
-        CoreSelect, Dropdown, DropdownItem, DropdownIndicator, Tag,
+        CoreSelect, Dropdown, DropdownItem, DropdownIndicator, Tag, SearchMode,
     },
 
     props: {
@@ -269,6 +277,11 @@ export default {
 
                         .input {
                             height: 2em;
+                        }
+
+                        .search-mode {
+                            right: 0.3em;
+                            pointer-events: all;
                         }
                     }
 

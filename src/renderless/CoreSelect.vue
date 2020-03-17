@@ -1,5 +1,6 @@
 <script>
 import debounce from 'lodash/debounce';
+import Modes from '@enso-ui/search-mode/src/modes';
 
 export default {
 
@@ -68,6 +69,16 @@ export default {
             type: Number,
             default: 10,
         },
+        searchMode: {
+            type: String,
+            default: 'full',
+            validator: (v) => Modes.includes(v),
+        },
+        searchModes: {
+            type: Array,
+            default: () => Modes,
+            validator: (v) => v.every((mode) => Modes.includes(mode)),
+        },
         source: {
             type: String,
             default: null,
@@ -94,6 +105,7 @@ export default {
         allowsSelection: true,
         internalValue: null,
         loading: false,
+        mode: v.searchMode,
         ongoingRequest: null,
         optionList: v.options,
         query: '',
@@ -123,6 +135,9 @@ export default {
             return this.multiple
                 ? this.value.length > 0
                 : this.value !== null;
+        },
+        modeSelector() {
+            return this.searchModes.length > 1;
         },
         needsSearch() {
             return this.serverSide || this.optionList.length >= this.searchLimit;
@@ -335,13 +350,14 @@ export default {
         },
         requestParams() {
             return {
-                params: this.params,
-                pivotParams: this.pivotParams,
                 customParams: this.customParams,
+                params: this.params,
+                paginate: this.paginate,
+                pivotParams: this.pivotParams,
                 query: this.query,
+                searchMode: this.mode,
                 trackBy: this.trackBy,
                 value: this.requestValue(),
-                paginate: this.paginate,
             };
         },
         requestValue() {
@@ -453,6 +469,16 @@ export default {
             query: this.query,
             reload: this.reload,
             reset: this.reset,
+            modeBindings: {
+                modes: this.searchModes,
+                query: this.query,
+                value: this.mode,
+            },
+            modeEvents: {
+                input: (event) => (this.mode = event),
+                change: this.fetch,
+            },
+            modeSelector: this.modeSelector,
             select: this.select,
             selected: this.selected,
             selection: this.selection,
