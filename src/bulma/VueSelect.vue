@@ -193,6 +193,8 @@ export default {
 
             .button.input {
                 width: 100%;
+                height: unset;
+                min-height: 2.2125em;
 
                 .control-display {
                     &.with-clear-button {
