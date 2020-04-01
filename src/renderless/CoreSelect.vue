@@ -301,13 +301,13 @@ export default {
 
             if (!selection) {
                 this.update(this.optionValue(option));
-                this.$emit('select', option[this.trackBy]);
+                this.$emit('select', this.objects ? option : option[this.trackBy]);
                 return;
             }
 
             if (!this.disableClear) {
                 this.update(null);
-                this.$emit('deselect', option[this.trackBy]);
+                this.$emit('deselect', this.objects ? option : option[this.trackBy]);
             }
         },
         highlight(label) {
@@ -418,12 +418,12 @@ export default {
         updateMultipleSelection(index, option) {
             if (index >= 0) {
                 this.value.splice(index, 1);
-                this.$emit('deselect', option[this.trackBy]);
+                this.$emit('deselect', this.objects ? option : option[this.trackBy]);
                 return;
             }
 
             this.value.push(this.optionValue(option));
-            this.$emit('select', option[this.trackBy]);
+            this.$emit('select', this.objects ? option : option[this.trackBy]);
         },
     },
 

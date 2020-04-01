@@ -22,14 +22,15 @@
                         @click="reload"
                         v-on="triggerEvents"
                         ref="trigger">
-                        <div class="control-display">
-                            <div class="field is-grouped is-grouped-multiline"
-                                v-if="hasSelection">
-                                <div class="control">
-                                    <slot name="selection"
-                                        :selection="selection"
-                                        :selection-bindings="selectionBindings"
-                                        :selection-events="selectionEvents">
+                        <div class="control-display"
+                            :class="{ 'with-clear-button': !disableClear }">
+                            <slot name="selection"
+                                :selection="selection"
+                                :selection-bindings="selectionBindings"
+                                :selection-events="selectionEvents">
+                                <div class="field is-grouped is-grouped-multiline"
+                                    v-if="hasSelection">
+                                    <div class="control">
                                         <template v-if="multiple">
                                             <tag v-for="value in selection"
                                                 :key="value[trackBy]"
@@ -39,20 +40,20 @@
                                         <template v-else>
                                             {{ displayLabel(selection) }}
                                         </template>
-                                    </slot>
+                                    </div>
                                 </div>
-                            </div>
-                            <template v-else-if="!hasOptions && !query">
-                                {{ i18n(labels.noOptions) }}
-                            </template>
-                            <template v-else>
-                                {{ i18n(placeholder) }}
-                            </template>
-                            <span class="is-loading"
-                                v-if="loading"/>
-                            <a class="delete is-small"
-                                v-on="clearEvents"
-                                v-if="clearControl"/>
+                                <template v-else-if="!hasOptions && !query">
+                                    {{ i18n(labels.noOptions) }}
+                                </template>
+                                <template v-else>
+                                    {{ i18n(placeholder) }}
+                                </template>
+                                <span class="is-loading"
+                                    v-if="loading"/>
+                                <a class="delete is-small"
+                                    v-on="clearEvents"
+                                    v-if="clearControl"/>
+                            </slot>
                         </div>
                         <dropdown-indicator :open="open" v-if="!disabled"/>
                     </button>
@@ -191,18 +192,21 @@ export default {
             width: 100%;
 
             .button.input {
-                min-height: 2.25em;
-                height: unset;
                 width: 100%;
 
                 .control-display {
-                    max-width: calc(100% - 2.5em);
+                    &.with-clear-button {
+                        max-width: calc(100% - 2.5em);
+                    }
+
                     overflow-x: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
+
                     [dir='ltr'] & {
                         text-align: left;
                     }
+
                     [dir='rtl'] & {
                         text-align: right;
                     }
@@ -292,9 +296,11 @@ export default {
                         height: 1.3rem;
                         top: calc(50% - 0.65rem);
                         z-index: 1;
+
                         [dir='ltr'] & {
                             right: 0.6rem;
                         }
+
                         [dir='rtl'] & {
                             left: 0.6rem;
                         }
@@ -303,9 +309,11 @@ export default {
                     .icon.selected {
                         position: absolute;
                         z-index: 1;
+
                         [dir='ltr'] & {
                             right: 0.6rem;
                         }
+
                         [dir='rtl'] & {
                             left: 0.6rem;
                         }
