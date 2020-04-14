@@ -402,8 +402,8 @@ export default {
         },
         valueMatchesOption(value, option) {
             return value !== null && this.objects
-                ? value[this.trackBy] === option[this.trackBy]
-                : value === option[this.trackBy];
+                ? `${value[this.trackBy]}` === `${option[this.trackBy]}`
+                : `${value}` === `${option[this.trackBy]}`;
         },
         valuesWhithinOptions() {
             return this.value.filter((val) => this.optionList
