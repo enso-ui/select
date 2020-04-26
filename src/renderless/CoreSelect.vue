@@ -162,7 +162,8 @@ export default {
         },
         dropdownDisabled() {
             return this.readonly || this.disabled
-                || !this.hasOptions && !this.query;
+                || !this.hasOptions && !this.query
+                || !this.allowsSelection;
         },
     },
 
