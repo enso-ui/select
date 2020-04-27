@@ -162,8 +162,7 @@ export default {
         },
         dropdownDisabled() {
             return this.readonly || this.disabled
-                || !this.hasOptions && !this.query
-                || !this.allowsSelection;
+                || !this.hasOptions && !this.query;
         },
     },
 
