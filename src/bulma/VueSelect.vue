@@ -3,7 +3,7 @@
         v-on="$listeners"
         ref="select">
         <template v-slot:default="{
-                canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
+                allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
                 highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
                 multiple, needsSearch, noResults, reload, loading, options, query, reset, selected,
@@ -12,7 +12,7 @@
             }">
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
-                :manual="multiple || canAddTag"
+                :manual="multiple || canAddTag || !allowsSelection"
                 @hide="reset()">
                 <template v-slot:trigger="{ triggerEvents, open }">
                     <button class="button input"
