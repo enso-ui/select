@@ -36,10 +36,10 @@
     "eslint-plugin-vue": "^6.0.0"
   },
   "dependencies": {
-    "@enso-ui/directives": "1.0.x",
-    "@enso-ui/dropdown": "1.1.x",
-    "@enso-ui/dropdown-indicator": "1.0.x",
-    "@enso-ui/search-mode": "1.0.x",
+    "@enso-ui/directives": "^1.0",
+    "@enso-ui/dropdown-indicator": "^1.0",
+    "@enso-ui/dropdown": "^2.0",
+    "@enso-ui/search-mode": "^2.0",
     "@fortawesome/fontawesome-free": "^5.2.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.2",
     "@fortawesome/free-solid-svg-icons": "^5.2.0",
