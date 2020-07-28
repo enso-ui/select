@@ -13,7 +13,8 @@
             <dropdown class="vue-select"
                 :disabled="dropdownDisabled"
                 :manual="multiple || canAddTag || !allowsSelection"
-                @hide="reset()">
+                @hide="reset()"
+                ref="dropdown">
                 <template v-slot:trigger="{ triggerEvents, open }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
@@ -178,6 +179,12 @@ export default {
         },
         fetch() {
             this.$refs.select.fetch();
+        },
+        hide() {
+            this.$refs.dropdown.hide();
+        },
+        show() {
+            this.$refs.dropdown.show();
         },
     },
 };

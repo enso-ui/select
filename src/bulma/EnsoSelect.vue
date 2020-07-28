@@ -42,6 +42,12 @@ export default {
         fetch() {
             this.$refs.select.fetch();
         },
+        hide() {
+            this.$refs.select.hide();
+        },
+        show() {
+            this.$refs.select.show();
+        },
     },
 };
 </script>
