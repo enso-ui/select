@@ -349,16 +349,19 @@ export default {
             }
         },
         requestParams() {
-            return {
-                customParams: this.customParams,
-                params: this.params,
+            const params = {
                 paginate: this.paginate,
-                pivotParams: this.pivotParams,
                 query: this.query,
                 searchMode: this.mode,
                 trackBy: this.trackBy,
                 value: this.requestValue(),
             };
+
+            ['customParams', 'params', 'pivotParams']
+                .filter((key) => this[key] && Object.keys(this[key]).length > 0)
+                .forEach((key) => (params[key] = this[key]));
+
+            return params;
         },
         requestValue() {
             if (!this.objects) {
