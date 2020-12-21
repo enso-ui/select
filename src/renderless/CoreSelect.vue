@@ -317,6 +317,7 @@ export default {
         },
         init() {
             this.fetch = debounce(this.fetch, this.debounce);
+            this.addTag = debounce(this.addTag, 1000);
             this.fetchIfServerSide();
         },
         isSelected(option) {
