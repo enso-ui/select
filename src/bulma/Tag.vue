@@ -1,7 +1,7 @@
 <template>
     <div class="vue-select tags has-addons">
         <span class="tag is-link">
-            <span class="has-margin-right-small tag-label">
+            <span class="mr-1 tag-label">
                 {{ label }}
             </span>
             <a class="tag is-delete"
