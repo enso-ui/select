@@ -1,8 +1,8 @@
 <template>
-    <vue-select :i18n="i18n"
+    <vue-select v-bind="$attrs"
+        :i18n="i18n"
         :error-handler="errorHandler"
         :source="source ? route(source) : null"
-        v-bind="$attrs"
         v-on="$listeners"
         ref="select">
          <template v-slot:option="props">
