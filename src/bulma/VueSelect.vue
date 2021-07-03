@@ -33,9 +33,9 @@
                                     v-if="hasSelection">
                                     <div class="control">
                                         <template v-if="multiple">
-                                            <tag v-for="value in selection"
+                                            <tag v-bind="selectionBindings(value)"
+                                                v-for="value in selection"
                                                 :key="value[trackBy]"
-                                                v-bind="selectionBindings(value)"
                                                 v-on="selectionEvents(value)"/>
                                         </template>
                                         <template v-else>
@@ -64,9 +64,9 @@
                     <div class="dropdown-item search">
                         <div class="control has-icons-right">
                             <input class="input"
+                                v-bind="filterBindings"
                                 type="text"
                                 :placeholder="i18n(labels.search)"
-                                v-bind="filterBindings"
                                 v-on="filterEvents"
                                 v-focus>
                             <search-mode class="is-right icon is-small search-mode"
@@ -77,8 +77,8 @@
                     </div>
                 </template>
                 <template v-slot:items>
-                    <dropdown-item key="add-tag"
-                        v-bind="taggableBindings"
+                    <dropdown-item v-bind="taggableBindings"
+                        key="add-tag"
                         v-on="taggableEvents"
                         v-if="canAddTag">
                         {{ query }}
