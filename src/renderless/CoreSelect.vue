@@ -238,13 +238,15 @@ export default {
             this.update(this.multiple ? [] : null);
             this.$emit('clear');
         },
-        deselect(value) {
-            const index = this.value
-                .findIndex((val) => val === value[this.trackBy]);
+        deselect(deselect) {
+            const value = JSON.parse(JSON.stringify(this.value));
+            
+            const index = value
+                .findIndex((val) => val === deselect[this.trackBy]);
 
-            this.value.splice(index, 1);
-            this.update(this.value);
-            this.$emit('deselect', value);
+            value.splice(index, 1);
+            this.update(value);
+            this.$emit('deselect', deselect);
         },
         displayLabel(option) {
             if (!option) {
@@ -291,8 +293,8 @@ export default {
             const index = this.value
                 .findIndex((val) => this.valueMatchesOption(val, option));
 
-            this.updateMultipleSelection(index, option);
-            this.update(this.value);
+            const value = this.updateMultipleSelection(index, option);
+            this.update(value);
         },
         handleSingleSelection(option) {
             this.reset();
@@ -420,14 +422,17 @@ export default {
                 : null;
         },
         updateMultipleSelection(index, option) {
+            const value = JSON.parse(JSON.stringify(this.value));
+
             if (index >= 0) {
-                this.value.splice(index, 1);
+                value.splice(index, 1);
                 this.$emit('deselect', this.objects ? option : option[this.trackBy]);
-                return;
+            } else {
+                value.push(this.optionValue(option));
+                this.$emit('select', this.objects ? option : option[this.trackBy]);
             }
 
-            this.value.push(this.optionValue(option));
-            this.$emit('select', this.objects ? option : option[this.trackBy]);
+            return value;
         },
     },
 
