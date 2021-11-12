@@ -5,7 +5,7 @@
         :source="source ? route(source) : null"
         v-on="$listeners"
         ref="select">
-         <template v-slot:option="props">
+         <template #:option="props">
             <slot name="option"
                 v-bind="props"/>
         </template>
@@ -18,9 +18,9 @@ import VueSelect from './VueSelect.vue';
 export default {
     name: 'EnsoSelect',
 
-    inject: ['errorHandler', 'i18n', 'route'],
-
     components: { VueSelect },
+
+    inject: ['errorHandler', 'i18n', 'route'],
 
     props: {
         source: {

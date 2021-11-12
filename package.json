@@ -22,30 +22,27 @@
     "url": "https://github.com/enso-ui/select/issues"
   },
   "homepage": "https://github.com/enso-ui/select#readme",
+  "dependencies": {
+    "@enso-ui/directives": "^2.0",
+    "@enso-ui/dropdown": "^3.0",
+    "@enso-ui/dropdown-indicator": "^2.0",
+    "@enso-ui/search-mode": "^3.0",
+    "@fortawesome/fontawesome-free": "^5.2.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.2",
+    "@fortawesome/free-solid-svg-icons": "^5.2.0",
+    "bulma": "^0.9.0",
+    "lodash": "^4.17.10",
+    "vue": "^3.0"
+  },
   "devDependencies": {
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-    "@vue/cli-plugin-babel": "^4.0.5",
-    "@vue/cli-plugin-eslint": "^4.0.5",
-    "@vue/cli-service": "^4.0.5",
+    "@vue/cli-plugin-babel": "5.0.0-beta.6",
+    "@vue/cli-plugin-eslint": "5.0.0-beta.6",
     "@vue/eslint-config-airbnb": "^5.0.0",
     "autoprefixer": "^9.6.1",
     "babel-eslint": "^10.0.1",
     "cross-env": "^6.0.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.0",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-vue": "^6.0.0"
-  },
-  "dependencies": {
-    "@enso-ui/directives": "^1.0",
-    "@enso-ui/dropdown": "^2.0",
-    "@enso-ui/dropdown-indicator": "^1.0",
-    "@enso-ui/search-mode": "^2.0",
-    "@fortawesome/fontawesome-free": "^5.2.0",
-    "@fortawesome/fontawesome-svg-core": "^1.2.2",
-    "@fortawesome/free-solid-svg-icons": "^5.2.0",
-    "@fortawesome/vue-fontawesome": "^0.1.1",
-    "bulma": "^0.9.0",
-    "lodash": "^4.17.10",
-    "vue": "^2.5.16"
+    "eslint-plugin-vue": "^8.0.0"
   }
 }
