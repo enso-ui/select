@@ -1,5 +1,5 @@
 <template>
-    <core-select v-bind="$attrs"   
+    <core-select v-bind="$attrs"
         ref="select">
         <template #default="{
                 allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
@@ -123,6 +123,7 @@
 </template>
 
 <script>
+import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCheck }
     from '@fortawesome/free-solid-svg-icons';
@@ -141,7 +142,13 @@ export default {
     directives: { focus, clickOutside },
 
     components: {
-        CoreSelect, Dropdown, DropdownItem, DropdownIndicator, Tag, SearchMode,
+        CoreSelect,
+        Dropdown,
+        DropdownItem,
+        DropdownIndicator,
+        Fa,
+        Tag,
+        SearchMode,
     },
 
     props: {
