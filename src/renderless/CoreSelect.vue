@@ -25,13 +25,13 @@ export default {
         },
         errorHandler: {
             type: Function,
-            default: (error) => {
+            default: error => {
                 throw error;
             },
         },
         i18n: {
             type: Function,
-            default: (v) => v,
+            default: v => v,
         },
         label: {
             type: String,
@@ -72,12 +72,12 @@ export default {
         searchMode: {
             type: String,
             default: 'full',
-            validator: (v) => Modes.includes(v),
+            validator: v => Modes.includes(v),
         },
         searchModes: {
             type: Array,
             default: () => ['full'],
-            validator: (v) => v.every((mode) => Modes.includes(mode)),
+            validator: v => v.every(mode => Modes.includes(mode)),
         },
         source: {
             type: String,
@@ -101,7 +101,7 @@ export default {
         },
     },
 
-    data: (v) => ({
+    data: v => ({
         allowsSelection: true,
         internalValue: null,
         loading: false,
@@ -122,7 +122,7 @@ export default {
         },
         filteredOptions() {
             return this.query && !this.serverSide
-                ? this.optionList.filter((option) => this.matchesQuery(option))
+                ? this.optionList.filter(option => this.matchesQuery(option))
                 : this.optionList;
         },
         hasFilteredOptions() {
@@ -147,15 +147,15 @@ export default {
         },
         queryDoesntMatch() {
             return !this.filteredOptions
-                .some((option) => `${this.displayLabel(option)}`
+                .some(option => `${this.displayLabel(option)}`
                     .toLowerCase() === this.query.toLowerCase());
         },
         selection() {
             return this.multiple
-                ? this.optionList.filter((option) => this.value
-                    .some((val) => this.valueMatchesOption(val, option)))
+                ? this.optionList.filter(option => this.value
+                    .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find((option) => this.valueMatchesOption(this.value, option)) || null;
+                    .find(option => this.valueMatchesOption(this.value, option)) || null;
         },
         serverSide() {
             return this.source !== null;
@@ -195,21 +195,27 @@ export default {
             deep: true,
         },
         query: 'fetchIfServerSide',
-        selection() {
-            this.$emit('selection', this.selection);
+        selection: {
+            handler() {
+                this.$emit('selection', this.selection);
+            },
+            deep: true,
         },
         source() {
             this.optionList = this.options;
             this.fetchIfServerSide();
         },
-        value(value) {
-            if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
-                this.$emit('input', value);
-            }
-            this.internalValue = null;
-            if (this.query) {
-                this.fetchIfServerSide();
-            }
+        value: {
+            handler(value) {
+                if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
+                    this.$emit('input', value);
+                }
+                this.internalValue = null;
+                if (this.query) {
+                    this.fetchIfServerSide();
+                }
+            },
+            deep: true,
         },
     },
 
@@ -240,9 +246,9 @@ export default {
         },
         deselect(deselect) {
             const value = JSON.parse(JSON.stringify(this.value));
-            
+
             const index = value
-                .findIndex((val) => val === deselect[this.trackBy]);
+                .findIndex(val => val === deselect[this.trackBy]);
 
             value.splice(index, 1);
             this.update(value);
@@ -276,7 +282,7 @@ export default {
                 this.$emit('fetch', this.optionList);
                 this.allowsSelection = true;
                 this.loading = false;
-            }).catch((error) => {
+            }).catch(error => {
                 this.loading = false;
                 if (!axios.isCancel(error)) {
                     this.errorHandler(error);
@@ -291,7 +297,7 @@ export default {
         },
         handleMultipleSelection(option) {
             const index = this.value
-                .findIndex((val) => this.valueMatchesOption(val, option));
+                .findIndex(val => this.valueMatchesOption(val, option));
 
             const value = this.updateMultipleSelection(index, option);
             this.update(value);
@@ -314,7 +320,7 @@ export default {
         },
         highlight(label) {
             return this.query.toLowerCase().split(' ')
-                .filter((arg) => arg !== '')
+                .filter(arg => arg !== '')
                 .reduce((label, arg) => this.bold(label, arg), label);
         },
         init() {
@@ -324,15 +330,15 @@ export default {
         },
         isSelected(option) {
             return this.multiple
-                ? this.value.some((val) => this.valueMatchesOption(val, option))
+                ? this.value.some(val => this.valueMatchesOption(val, option))
                 : this.valueMatchesOption(this.value, option);
         },
         matchesQuery(option) {
             const label = this.displayLabel(option);
 
             return this.query.toLowerCase().split(' ')
-                .filter((arg) => arg !== '')
-                .every((arg) => `${label}`.toLowerCase().indexOf(arg) >= 0);
+                .filter(arg => arg !== '')
+                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
         },
         optionValue(option) {
             return this.objects
@@ -361,8 +367,8 @@ export default {
             };
 
             ['customParams', 'params', 'pivotParams']
-                .filter((key) => this[key] && Object.keys(this[key]).length > 0)
-                .forEach((key) => (params[key] = this[key]));
+                .filter(key => this[key] && Object.keys(this[key]).length > 0)
+                .forEach(key => (params[key] = this[key]));
 
             return params;
         },
@@ -372,7 +378,7 @@ export default {
             }
 
             return this.multiple
-                ? this.value.map((value) => value[this.trackBy])
+                ? this.value.map(value => value[this.trackBy])
                 : this.value[this.trackBy];
         },
         reset() {
@@ -412,12 +418,12 @@ export default {
                 : `${value}` === `${option[this.trackBy]}`;
         },
         valuesWhithinOptions() {
-            return this.value.filter((val) => this.optionList
-                .some((option) => this.valueMatchesOption(val, option)));
+            return this.value.filter(val => this.optionList
+                .some(option => this.valueMatchesOption(val, option)));
         },
         valueWhithinOptions() {
             return this.optionList
-                .some((option) => this.valueMatchesOption(this.value, option))
+                .some(option => this.valueMatchesOption(this.value, option))
                 ? this.value
                 : null;
         },
@@ -442,7 +448,7 @@ export default {
             canAddTag: this.canAddTag,
             clearControl: this.clearControl,
             clearEvents: {
-                click: (e) => {
+                click: e => {
                     this.clear();
                     e.stopPropagation();
                 },
@@ -453,9 +459,9 @@ export default {
             dropdownDisabled: this.dropdownDisabled,
             filterBindings: { value: this.query },
             filterEvents: {
-                input: (e) => (this.query = e.target.value),
-                click: (e) => e.stopPropagation(),
-                keydown: (e) => {
+                input: e => (this.query = e.target.value),
+                click: e => e.stopPropagation(),
+                keydown: e => {
                     if (e.key === 'Enter' && this.taggable && !this.hasOptions && this.query) {
                         this.addTag();
                         e.stopPropagation();
@@ -468,7 +474,7 @@ export default {
             highlight: this.highlight,
             i18n: this.i18n,
             isSelected: this.isSelected,
-            itemEvents: (index) => ({
+            itemEvents: index => ({
                 select: () => this.select(index),
             }),
             loading: this.loading,
@@ -485,18 +491,18 @@ export default {
                 value: this.mode,
             },
             modeEvents: {
-                input: (event) => (this.mode = event),
+                input: event => (this.mode = event),
                 change: this.fetch,
             },
             modeSelector: this.modeSelector,
             select: this.select,
             selected: this.selected,
             selection: this.selection,
-            selectionBindings: (value) => ({
+            selectionBindings: value => ({
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
-            selectionEvents: (value) => ({
+            selectionEvents: value => ({
                 deselect: () => this.deselect(value),
             }),
             taggable: this.taggable,
