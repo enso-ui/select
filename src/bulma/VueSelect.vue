@@ -1,8 +1,7 @@
 <template>
-    <core-select v-bind="$attrs"
-        v-on="$listeners"
+    <core-select v-bind="$attrs"   
         ref="select">
-        <template #:default="{
+        <template #default="{
                 allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
                 disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
                 highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
@@ -15,7 +14,7 @@
                 :manual="multiple || canAddTag || !allowsSelection"
                 @hide="reset()"
                 ref="dropdown">
-                <template #:trigger="{ triggerEvents, open }">
+                <template #trigger="{ triggerEvents, open }">
                     <button class="button input"
                         :class="{ 'has-error': hasError }"
                         type="button"
@@ -59,7 +58,7 @@
                         <dropdown-indicator :open="open" v-if="!disabled"/>
                     </button>
                 </template>
-                <template #:controls
+                <template #controls
                     v-if="needsSearch">
                     <div class="dropdown-item search">
                         <div class="control has-icons-right">
@@ -76,7 +75,7 @@
                         </div>
                     </div>
                 </template>
-                <template #:items>
+                <template #items>
                     <dropdown-item v-bind="taggableBindings"
                         key="add-tag"
                         v-on="taggableEvents"
@@ -90,7 +89,7 @@
                         :key="option[trackBy]"
                         :selected="false"
                         v-on="itemEvents(index)">
-                        <template #:default="{ current }">
+                        <template #default="{ current }">
                             <slot name="option"
                                 :option="option"
                                 :highlight="highlight">

@@ -2,10 +2,9 @@
     <vue-select v-bind="$attrs"
         :i18n="i18n"
         :error-handler="errorHandler"
-        :source="source ? route(source) : null"
-        v-on="$listeners"
+        :source="source ? route(source) : null"   
         ref="select">
-         <template #:option="props">
+         <template #option="props">
             <slot name="option"
                 v-bind="props"/>
         </template>

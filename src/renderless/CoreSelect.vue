@@ -437,7 +437,7 @@ export default {
     },
 
     render() {
-        return this.$scopedSlots.default({
+        return this.$slots.default({
             allowsSelection: this.allowsSelection,
             canAddTag: this.canAddTag,
             clearControl: this.clearControl,
