@@ -95,11 +95,13 @@ export default {
             type: Boolean,
             default: false,
         },
-        value: {
+        modelValue: {
             type: null,
             required: true,
         },
     },
+
+    emits: ['change', 'update:modelValue'],
 
     data: v => ({
         allowsSelection: true,
@@ -133,8 +135,8 @@ export default {
         },
         hasSelection() {
             return this.multiple
-                ? this.value.length > 0
-                : this.value !== null;
+                ? this.modelValue.length > 0
+                : this.modelValue !== null;
         },
         modeSelector() {
             return this.searchModes.length > 1;
@@ -152,10 +154,10 @@ export default {
         },
         selection() {
             return this.multiple
-                ? this.optionList.filter(option => this.value
+                ? this.optionList.filter(option => this.modelValue
                     .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find(option => this.valueMatchesOption(this.value, option)) || null;
+                    .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
         },
         serverSide() {
             return this.source !== null;
@@ -205,10 +207,10 @@ export default {
             this.optionList = this.options;
             this.fetchIfServerSide();
         },
-        value: {
+        modelValue: {
             handler(value) {
                 if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
-                    this.$emit('input', value);
+                    this.$emit('update:modelValue', value);
                 }
                 this.internalValue = null;
                 if (this.query) {
@@ -245,7 +247,7 @@ export default {
             this.$emit('clear');
         },
         deselect(deselect) {
-            const value = JSON.parse(JSON.stringify(this.value));
+            const value = JSON.parse(JSON.stringify(this.modelValue));
 
             const index = value
                 .findIndex(val => val === deselect[this.trackBy]);
@@ -296,7 +298,7 @@ export default {
             }
         },
         handleMultipleSelection(option) {
-            const index = this.value
+            const index = this.modelValue
                 .findIndex(val => this.valueMatchesOption(val, option));
 
             const value = this.updateMultipleSelection(index, option);
@@ -305,7 +307,7 @@ export default {
         handleSingleSelection(option) {
             this.reset();
 
-            const selection = this.valueMatchesOption(this.value, option);
+            const selection = this.valueMatchesOption(this.modelValue, option);
 
             if (!selection) {
                 this.update(this.optionValue(option));
@@ -330,8 +332,8 @@ export default {
         },
         isSelected(option) {
             return this.multiple
-                ? this.value.some(val => this.valueMatchesOption(val, option))
-                : this.valueMatchesOption(this.value, option);
+                ? this.modelValue.some(val => this.valueMatchesOption(val, option))
+                : this.valueMatchesOption(this.modelValue, option);
         },
         matchesQuery(option) {
             const label = this.displayLabel(option);
@@ -374,12 +376,12 @@ export default {
         },
         requestValue() {
             if (!this.objects) {
-                return this.value;
+                return this.modelValue;
             }
 
             return this.multiple
-                ? this.value.map(value => value[this.trackBy])
-                : this.value[this.trackBy];
+                ? this.modelValue.map(value => value[this.trackBy])
+                : this.modelValue[this.trackBy];
         },
         reset() {
             this.query = '';
@@ -400,7 +402,7 @@ export default {
         },
         update(value) {
             this.internalValue = value;
-            this.$emit('input', value);
+            this.$emit('update:modelValue', value);
             this.$emit('update');
         },
         updateSelection() {
@@ -408,7 +410,7 @@ export default {
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
 
-            if (JSON.stringify(value) !== JSON.stringify(this.value)) {
+            if (JSON.stringify(value) !== JSON.stringify(this.modelValue)) {
                 this.update(value);
             }
         },
@@ -418,17 +420,17 @@ export default {
                 : `${value}` === `${option[this.trackBy]}`;
         },
         valuesWhithinOptions() {
-            return this.value.filter(val => this.optionList
+            return this.modelValue.filter(val => this.optionList
                 .some(option => this.valueMatchesOption(val, option)));
         },
         valueWhithinOptions() {
             return this.optionList
-                .some(option => this.valueMatchesOption(this.value, option))
-                ? this.value
+                .some(option => this.valueMatchesOption(this.modelValue, option))
+                ? this.modelValue
                 : null;
         },
         updateMultipleSelection(index, option) {
-            const value = JSON.parse(JSON.stringify(this.value));
+            const value = JSON.parse(JSON.stringify(this.modelValue));
 
             if (index >= 0) {
                 value.splice(index, 1);
@@ -457,7 +459,7 @@ export default {
             disabled: this.disabled,
             displayLabel: this.displayLabel,
             dropdownDisabled: this.dropdownDisabled,
-            filterBindings: { value: this.query },
+            filterBindings: { modelValue: this.query },
             filterEvents: {
                 input: e => (this.query = e.target.value),
                 click: e => e.stopPropagation(),
@@ -488,7 +490,7 @@ export default {
             modeBindings: {
                 modes: this.searchModes,
                 query: this.query,
-                value: this.mode,
+                modelValue: this.mode,
             },
             modeEvents: {
                 input: event => (this.mode = event),
