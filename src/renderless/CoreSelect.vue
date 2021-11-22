@@ -101,7 +101,10 @@ export default {
         },
     },
 
-    emits: ['change', 'update:modelValue'],
+    emits: [
+        'add-tag', 'clear', 'deselect', 'fetch', 'select',
+        'selection', 'update', 'update:modelValue',
+    ],
 
     data: v => ({
         allowsSelection: true,
@@ -157,7 +160,7 @@ export default {
                 ? this.optionList.filter(option => this.modelValue
                     .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
+                .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
         },
         serverSide() {
             return this.source !== null;
@@ -490,10 +493,10 @@ export default {
             modeBindings: {
                 modes: this.searchModes,
                 query: this.query,
-                modelValue: this.mode,
+                'update:modelValue': this.mode,
             },
             modeEvents: {
-                input: event => (this.mode = event),
+                'update:modelValue': event => (this.mode = event),
                 change: this.fetch,
             },
             modeSelector: this.modeSelector,
