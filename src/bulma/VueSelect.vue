@@ -1,125 +1,126 @@
 <template>
-    <core-select v-bind="$attrs"
-        ref="select">
-        <template #default="{
-                allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
-                disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
-                highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
-                multiple, needsSearch, noResults, reload, loading, options, query, reset, selected,
-                selection, selectionBindings, selectionEvents, taggable, taggableBindings,
-                taggableEvents, trackBy,
-            }">
-            <dropdown class="vue-select"
-                :disabled="dropdownDisabled"
-                :manual="multiple || canAddTag || !allowsSelection"
-                @hide="reset()"
-                ref="dropdown">
-                <template #trigger="{ triggerEvents, open }">
-                    <button class="button input"
-                        :class="{ 'has-error': hasError }"
-                        type="button"
-                        :disabled="disabled"
-                        @click="reload"
-                        v-on="triggerEvents"
-                        ref="trigger">
-                        <div class="control-display"
-                            :class="{ 'with-clear-button': !disableClear }">
-                            <slot name="selection"
-                                :selection="selection"
-                                :selection-bindings="selectionBindings"
-                                :selection-events="selectionEvents">
-                                <div class="field is-grouped is-grouped-multiline"
-                                    v-if="hasSelection">
-                                    <div class="control">
-                                        <template v-if="multiple">
-                                            <tag v-bind="selectionBindings(value)"
-                                                v-for="value in selection"
-                                                :key="value[trackBy]"
-                                                v-on="selectionEvents(value)"/>
-                                        </template>
-                                        <template v-else>
-                                            {{ displayLabel(selection) }}
-                                        </template>
+    <div class="vue-select">
+        <core-select v-bind="{...$attrs, class: undefined}"
+            ref="select">
+            <template #default="{
+                    allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
+                    disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
+                    highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
+                    multiple, needsSearch, noResults, reload, loading, options, query, reset,
+                    selection, selectionBindings, selectionEvents, taggable, taggableBindings,
+                    taggableEvents, trackBy,
+                }">
+                <dropdown :disabled="dropdownDisabled"
+                    :manual="multiple || canAddTag || !allowsSelection"
+                    @hide="reset()"
+                    ref="dropdown">
+                    <template #trigger="{ triggerEvents, open }">
+                        <button class="button input"
+                            :class="{ 'has-error': hasError }"
+                            type="button"
+                            :disabled="disabled"
+                            @click="reload"
+                            v-on="triggerEvents"
+                            ref="trigger">
+                            <div class="control-display"
+                                :class="{ 'with-clear-button': !disableClear }">
+                                <slot name="selection"
+                                    :selection="selection"
+                                    :selection-bindings="selectionBindings"
+                                    :selection-events="selectionEvents">
+                                    <div class="field is-grouped is-grouped-multiline"
+                                        v-if="hasSelection">
+                                        <div class="control">
+                                            <template v-if="multiple">
+                                                <tag v-bind="selectionBindings(value)"
+                                                    v-for="value in selection"
+                                                    :key="value[trackBy]"
+                                                    v-on="selectionEvents(value)"/>
+                                            </template>
+                                            <template v-else>
+                                                {{ displayLabel(selection) }}
+                                            </template>
+                                        </div>
                                     </div>
-                                </div>
-                                <template v-else-if="!hasOptions && !query">
-                                    {{ i18n(labels.noOptions) }}
-                                </template>
-                                <template v-else>
-                                    {{ i18n(placeholder) }}
-                                </template>
-                                <span class="is-loading"
-                                    v-if="loading"/>
-                                <a class="delete is-small"
-                                    v-on="clearEvents"
-                                    v-if="clearControl"/>
-                            </slot>
+                                    <template v-else-if="!hasOptions && !query">
+                                        {{ i18n(labels.noOptions) }}
+                                    </template>
+                                    <template v-else>
+                                        {{ i18n(placeholder) }}
+                                    </template>
+                                    <span class="is-loading"
+                                        v-if="loading"/>
+                                    <a class="delete is-small"
+                                        v-on="clearEvents"
+                                        v-if="clearControl"/>
+                                </slot>
+                            </div>
+                            <dropdown-indicator :open="open" v-if="!disabled"/>
+                        </button>
+                    </template>
+                    <template #controls
+                        v-if="needsSearch">
+                        <div class="dropdown-item search">
+                            <div class="control has-icons-right">
+                                <input class="input"
+                                    v-bind="filterBindings"
+                                    type="text"
+                                    :placeholder="i18n(labels.search)"
+                                    v-on="filterEvents"
+                                    v-focus>
+                                <search-mode class="is-right icon is-small search-mode"
+                                    v-bind="modeBindings"
+                                    v-on="modeEvents"
+                                    v-if="modeSelector"/>
+                            </div>
                         </div>
-                        <dropdown-indicator :open="open" v-if="!disabled"/>
-                    </button>
-                </template>
-                <template #controls
-                    v-if="needsSearch">
-                    <div class="dropdown-item search">
-                        <div class="control has-icons-right">
-                            <input class="input"
-                                v-bind="filterBindings"
-                                type="text"
-                                :placeholder="i18n(labels.search)"
-                                v-on="filterEvents"
-                                v-focus>
-                            <search-mode class="is-right icon is-small search-mode"
-                                v-bind="modeBindings"
-                                v-on="modeEvents"
-                                v-if="modeSelector"/>
-                        </div>
-                    </div>
-                </template>
-                <template #items>
-                    <dropdown-item v-bind="taggableBindings"
-                        key="add-tag"
-                        v-on="taggableEvents"
-                        v-if="canAddTag">
-                        {{ query }}
-                        <span class="label tag is-info">
-                            {{ i18n(labels.add) }}
-                        </span>
-                    </dropdown-item>
-                    <dropdown-item v-for="(option, index) in options"
-                        :key="option[trackBy]"
-                        :selected="false"
-                        v-on="itemEvents(index)">
-                        <template #default="{ current }">
-                            <slot name="option"
-                                :option="option"
-                                :highlight="highlight">
-                                <!-- eslint-disable-next-line vue/no-v-html -->
-                                <span v-html="highlight(displayLabel(option))"/>
-                            </slot>
-                            <span class="label tag"
-                                :class="isSelected(option) ? 'is-warning' : 'is-success'"
-                                v-if="current && !disableClear">
-                                <span v-if="isSelected(option)">
-                                    {{ i18n(labels.deselect) }}
-                                </span>
-                                <span v-else>
-                                    {{ i18n(labels.select) }}
-                                </span>
+                    </template>
+                    <template #items>
+                        <dropdown-item v-bind="taggableBindings"
+                            key="add-tag"
+                            v-on="taggableEvents"
+                            v-if="canAddTag">
+                            {{ query }}
+                            <span class="label tag is-info">
+                                {{ i18n(labels.add) }}
                             </span>
-                            <span class="icon is-small selected has-text-success"
-                                v-else-if="isSelected(option)">
-                                <fa icon="check"/>
-                            </span>
-                        </template>
-                    </dropdown-item>
-                    <dropdown-item key="no-results"
-                        v-if="!taggable && noResults">
-                        {{ i18n(labels.noResults) }}
-                    </dropdown-item>
-                </template>
-            </dropdown>
-        </template>
-    </core-select>
+                        </dropdown-item>
+                        <dropdown-item v-for="(option, index) in options"
+                            :key="option[trackBy]"
+                            :selected="false"
+                            v-on="itemEvents(index)">
+                            <template #default="{ current }">
+                                <slot name="option"
+                                    :option="option"
+                                    :highlight="highlight">
+                                    <!-- eslint-disable-next-line vue/no-v-html -->
+                                    <span v-html="highlight(displayLabel(option))"/>
+                                </slot>
+                                <span class="label tag"
+                                    :class="isSelected(option) ? 'is-warning' : 'is-success'"
+                                    v-if="current && !disableClear">
+                                    <span v-if="isSelected(option)">
+                                        {{ i18n(labels.deselect) }}
+                                    </span>
+                                    <span v-else>
+                                        {{ i18n(labels.select) }}
+                                    </span>
+                                </span>
+                                <span class="icon is-small selected has-text-success"
+                                    v-else-if="isSelected(option)">
+                                    <fa icon="check"/>
+                                </span>
+                            </template>
+                        </dropdown-item>
+                        <dropdown-item key="no-results"
+                            v-if="!taggable && noResults">
+                            {{ i18n(labels.noResults) }}
+                        </dropdown-item>
+                    </template>
+                </dropdown>
+            </template>
+        </core-select>
+    </div>
 </template>
 
 <script>
@@ -198,7 +199,8 @@ export default {
 
 
 <style lang="scss">
-    .dropdown.vue-select {
+.vue-select {
+    .dropdown {
         width: 100%;
 
         .dropdown-trigger {
@@ -245,9 +247,11 @@ export default {
                     .delete {
                         position: absolute;
                         top: 0.55rem;
+
                         [dir='ltr'] & {
                             right: 1.5rem;
                         }
+
                         [dir='rtl'] & {
                             left: 1.5rem;
                         }
@@ -262,15 +266,16 @@ export default {
                         content: "";
                         display: block;
                         height: 1em;
-                        position: relative;
                         width: 1em;
                         position: absolute !important;
                         top: .55em;
                         z-index: 4;
+
                         [dir='ltr'] & {
                             border-right-color: transparent;
                             right: 1.7rem;
                         }
+
                         [dir='rtl'] & {
                             border-left-color: transparent;
                             left: 1.7rem;
@@ -337,5 +342,5 @@ export default {
             }
         }
     }
-
+}
 </style>

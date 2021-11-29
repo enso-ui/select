@@ -501,7 +501,6 @@ export default {
             },
             modeSelector: this.modeSelector,
             select: this.select,
-            selected: this.selected,
             selection: this.selection,
             selectionBindings: value => ({
                 disabled: this.disabled || this.readonly,
