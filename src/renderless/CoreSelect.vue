@@ -102,7 +102,7 @@ export default {
     },
 
     emits: [
-        'add-tag', 'clear', 'deselect', 'fetch', 'select',
+        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
         'selection', 'update', 'update:modelValue',
     ],
 
