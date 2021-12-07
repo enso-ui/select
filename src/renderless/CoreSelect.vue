@@ -106,6 +106,8 @@ export default {
         'selection', 'update', 'update:modelValue',
     ],
 
+    inheritAttrs: false,
+
     data: v => ({
         allowsSelection: true,
         internalValue: null,
