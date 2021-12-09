@@ -58,15 +58,15 @@
                             <dropdown-indicator :open="open" v-if="!disabled"/>
                         </button>
                     </template>
-                    <template #controls
+                    <template #controls="{ keydown }"
                         v-if="needsSearch">
-                        <div class="dropdown-item search">
+                        <div class="search">
                             <div class="control has-icons-right">
                                 <input class="input"
                                     v-bind="filterBindings"
                                     type="text"
                                     :placeholder="i18n(labels.search)"
-                                    v-on="filterEvents"
+                                    v-on="{ ...filterEvents, keydown }"
                                     v-focus>
                                 <search-mode class="is-right icon is-small search-mode"
                                     v-bind="modeBindings"
@@ -199,6 +199,8 @@ export default {
 
 
 <style lang="scss">
+@import 'bulma/sass/utilities/derived-variables';
+
 .vue-select {
     .dropdown {
         width: 100%;
@@ -210,6 +212,10 @@ export default {
                 width: 100%;
                 height: unset;
                 min-height: 2.2125em;
+
+                &.has-error {
+                    border-color: $danger;
+                }
 
                 .control-display {
                     &.with-clear-button {
@@ -291,24 +297,24 @@ export default {
             .dropdown-content {
                 width: 100%;
 
+                .search {
+                    padding: 0 0.375rem 0.6rem;
+
+                    .input {
+                        height: 2em;
+                    }
+
+                    .search-mode {
+                        right: 0.3em;
+                        pointer-events: all;
+                    }
+                }
+
                 .dropdown-item {
                     text-overflow: ellipsis;
                     overflow-x: hidden;
                     white-space: nowrap;
                     padding: 0.375rem 2rem 0.375rem 0.6rem;
-
-                    &.search {
-                        padding: 0 0.375rem 0.6rem;
-
-                        .input {
-                            height: 2em;
-                        }
-
-                        .search-mode {
-                            right: 0.3em;
-                            pointer-events: all;
-                        }
-                    }
 
                     .label.tag {
                         position: absolute;
