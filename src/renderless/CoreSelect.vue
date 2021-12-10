@@ -361,7 +361,7 @@ export default {
         },
         reload() {
             if (!this.hasOptions && !this.readonly && !this.disabled) {
-                this.fetch();
+                this.fetchIfServerSide();
             }
         },
         requestParams() {
