@@ -1,8 +1,9 @@
 <template>
     <vue-select v-bind="$attrs"
+        :http="http"
         :i18n="i18n"
         :error-handler="errorHandler"
-        :source="source ? route(source) : null"   
+        :source="source ? route(source) : null"
         ref="select">
          <template #option="props">
             <slot name="option"
@@ -19,7 +20,7 @@ export default {
 
     components: { VueSelect },
 
-    inject: ['errorHandler', 'i18n', 'route'],
+    inject: ['errorHandler', 'http', 'i18n', 'route'],
 
     props: {
         source: {
