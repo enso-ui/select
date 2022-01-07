@@ -1,5 +1,5 @@
 <template>
-    <vue-select v-bind="$attrs"
+    <vue-select
         :http="http"
         :i18n="i18n"
         :error-handler="errorHandler"

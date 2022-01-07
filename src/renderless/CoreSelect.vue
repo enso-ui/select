@@ -3,8 +3,14 @@ import { debounce } from 'lodash';
 import Modes from '@enso-ui/search-mode/src/modes';
 
 export default {
-
     name: 'CoreSelect',
+
+    emits: [
+        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
+        'selection', 'update', 'update:modelValue',
+    ],
+
+    inheritAttrs: false,
 
     props: {
         customParams: {
@@ -104,13 +110,6 @@ export default {
             required: true,
         },
     },
-
-    emits: [
-        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
-        'selection', 'update', 'update:modelValue',
-    ],
-
-    inheritAttrs: false,
 
     data: v => ({
         allowsSelection: true,

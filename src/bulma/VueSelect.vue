@@ -1,6 +1,7 @@
 <template>
-    <div class="vue-select">
-        <core-select v-bind="{...$attrs, class: undefined}"
+    <div class="vue-select"
+        :class="$attrs.class">
+        <core-select v-bind="$attrs"
             ref="select">
             <template #default="{
                     allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
@@ -141,6 +142,8 @@ export default {
     name: 'VueSelect',
 
     directives: { focus, clickOutside },
+
+    inheritAttrs: false,
 
     components: {
         CoreSelect,
