@@ -242,7 +242,9 @@ export default {
             const value = JSON.parse(JSON.stringify(this.value));
             
             const index = value
-                .findIndex((val) => val === deselect[this.trackBy]);
+                .findIndex(val => this.objects
+                    ? val[this.trackBy] === deselect[this.trackBy]
+                    : val === deselect[this.trackBy]);
 
             value.splice(index, 1);
             this.update(value);
