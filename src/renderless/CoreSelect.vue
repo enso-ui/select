@@ -5,11 +5,6 @@ import Modes from '@enso-ui/search-mode/src/modes';
 export default {
     name: 'CoreSelect',
 
-    emits: [
-        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
-        'selection', 'update', 'update:modelValue',
-    ],
-
     inheritAttrs: false,
 
     props: {
@@ -111,6 +106,11 @@ export default {
         },
     },
 
+    emits: [
+        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
+        'selection', 'update', 'update:modelValue',
+    ],
+
     data: v => ({
         allowsSelection: true,
         internalValue: null,
@@ -165,7 +165,7 @@ export default {
                 ? this.optionList.filter(option => this.modelValue
                     .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
+                    .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
         },
         serverSide() {
             return this.source !== null;
@@ -230,7 +230,7 @@ export default {
     },
 
     created() {
-        if(!this.http && this.source !== null) {
+        if (!this.http && this.source !== null) {
             throw Error('Using the serverside mode requires providing a http client');
         }
 

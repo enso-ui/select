@@ -4,12 +4,14 @@
         <core-select v-bind="$attrs"
             ref="select">
             <template #default="{
-                    allowsSelection, canAddTag, clearControl, clearEvents, dropdownDisabled, disableClear,
-                    disabled, displayLabel, filterBindings, filterEvents, hasOptions, hasSelection,
-                    highlight, i18n, isSelected, itemEvents, modeSelector, modeBindings, modeEvents,
-                    multiple, needsSearch, noResults, reload, loading, options, query, reset,
-                    selection, selectionBindings, selectionEvents, taggable, taggableBindings,
-                    taggableEvents, trackBy,
+                    allowsSelection, canAddTag, clearControl, clearEvents,
+                    dropdownDisabled, disableClear, disabled, displayLabel,
+                    filterBindings, filterEvents, hasOptions, hasSelection,
+                    highlight, i18n, isSelected, itemEvents, modeSelector,
+                    modeBindings, modeEvents, multiple, needsSearch, noResults,
+                    reload, loading, options, query, reset, selection,
+                    selectionBindings, selectionEvents, taggable,
+                    taggableBindings, taggableEvents, trackBy,
                 }">
                 <dropdown :disabled="dropdownDisabled"
                     :manual="multiple || canAddTag || !allowsSelection"
@@ -128,7 +130,7 @@
 import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCheck }
-    from '@fortawesome/free-solid-svg-icons';
+from '@fortawesome/free-solid-svg-icons';
 import { focus, clickOutside } from '@enso-ui/directives';
 import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
@@ -143,8 +145,6 @@ export default {
 
     directives: { focus, clickOutside },
 
-    inheritAttrs: false,
-
     components: {
         CoreSelect,
         Dropdown,
@@ -154,6 +154,8 @@ export default {
         Tag,
         SearchMode,
     },
+
+    inheritAttrs: false,
 
     props: {
         hasError: {
@@ -199,7 +201,6 @@ export default {
     },
 };
 </script>
-
 
 <style lang="scss">
 @import 'bulma/sass/utilities/derived-variables';
