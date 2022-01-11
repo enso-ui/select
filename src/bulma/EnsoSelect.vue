@@ -1,11 +1,11 @@
 <template>
-    <vue-select v-bind="$attrs"
+    <vue-select
+        :http="http"
         :i18n="i18n"
         :error-handler="errorHandler"
         :source="source ? route(source) : null"
-        v-on="$listeners"
         ref="select">
-         <template v-slot:option="props">
+         <template #option="props">
             <slot name="option"
                 v-bind="props"/>
         </template>
@@ -18,9 +18,9 @@ import VueSelect from './VueSelect.vue';
 export default {
     name: 'EnsoSelect',
 
-    inject: ['errorHandler', 'i18n', 'route'],
-
     components: { VueSelect },
+
+    inject: ['errorHandler', 'http', 'i18n', 'route'],
 
     props: {
         source: {

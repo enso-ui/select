@@ -3,8 +3,9 @@ import { debounce } from 'lodash';
 import Modes from '@enso-ui/search-mode/src/modes';
 
 export default {
-
     name: 'CoreSelect',
+
+    inheritAttrs: false,
 
     props: {
         customParams: {
@@ -25,13 +26,17 @@ export default {
         },
         errorHandler: {
             type: Function,
-            default: (error) => {
+            default: error => {
                 throw error;
             },
         },
+        http: {
+            default: null,
+            type: Function,
+        },
         i18n: {
             type: Function,
-            default: (v) => v,
+            default: v => v,
         },
         label: {
             type: String,
@@ -72,12 +77,12 @@ export default {
         searchMode: {
             type: String,
             default: 'full',
-            validator: (v) => Modes.includes(v),
+            validator: v => Modes.includes(v),
         },
         searchModes: {
             type: Array,
             default: () => ['full'],
-            validator: (v) => v.every((mode) => Modes.includes(mode)),
+            validator: v => v.every(mode => Modes.includes(mode)),
         },
         source: {
             type: String,
@@ -95,13 +100,18 @@ export default {
             type: Boolean,
             default: false,
         },
-        value: {
+        modelValue: {
             type: null,
             required: true,
         },
     },
 
-    data: (v) => ({
+    emits: [
+        'add-tag', 'clear', 'deselect', 'fetch', 'input', 'select',
+        'selection', 'update', 'update:modelValue',
+    ],
+
+    data: v => ({
         allowsSelection: true,
         internalValue: null,
         loading: false,
@@ -122,7 +132,7 @@ export default {
         },
         filteredOptions() {
             return this.query && !this.serverSide
-                ? this.optionList.filter((option) => this.matchesQuery(option))
+                ? this.optionList.filter(option => this.matchesQuery(option))
                 : this.optionList;
         },
         hasFilteredOptions() {
@@ -133,8 +143,8 @@ export default {
         },
         hasSelection() {
             return this.multiple
-                ? this.value.length > 0
-                : this.value !== null;
+                ? this.modelValue.length > 0
+                : this.modelValue !== null;
         },
         modeSelector() {
             return this.searchModes.length > 1;
@@ -147,15 +157,15 @@ export default {
         },
         queryDoesntMatch() {
             return !this.filteredOptions
-                .some((option) => `${this.displayLabel(option)}`
+                .some(option => `${this.displayLabel(option)}`
                     .toLowerCase() === this.query.toLowerCase());
         },
         selection() {
             return this.multiple
-                ? this.optionList.filter((option) => this.value
-                    .some((val) => this.valueMatchesOption(val, option)))
+                ? this.optionList.filter(option => this.modelValue
+                    .some(val => this.valueMatchesOption(val, option)))
                 : this.optionList
-                    .find((option) => this.valueMatchesOption(this.value, option)) || null;
+                    .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
         },
         serverSide() {
             return this.source !== null;
@@ -195,25 +205,35 @@ export default {
             deep: true,
         },
         query: 'fetchIfServerSide',
-        selection() {
-            this.$emit('selection', this.selection);
+        selection: {
+            handler() {
+                this.$emit('selection', this.selection);
+            },
+            deep: true,
         },
         source() {
             this.optionList = this.options;
             this.fetchIfServerSide();
         },
-        value(value) {
-            if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
-                this.$emit('input', value);
-            }
-            this.internalValue = null;
-            if (this.query) {
-                this.fetchIfServerSide();
-            }
+        modelValue: {
+            handler(value) {
+                if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
+                    this.$emit('update:modelValue', value);
+                }
+                this.internalValue = null;
+                if (this.query) {
+                    this.fetchIfServerSide();
+                }
+            },
+            deep: true,
         },
     },
 
     created() {
+        if (!this.http && this.source !== null) {
+            throw Error('Using the serverside mode requires providing a http client');
+        }
+
         this.init();
     },
 
@@ -239,8 +259,8 @@ export default {
             this.$emit('clear');
         },
         deselect(deselect) {
-            const value = JSON.parse(JSON.stringify(this.value));
-            
+            const value = JSON.parse(JSON.stringify(this.modelValue));
+
             const index = value
                 .findIndex(val => this.objects
                     ? val[this.trackBy] === deselect[this.trackBy]
@@ -267,10 +287,10 @@ export default {
                 this.ongoingRequest.cancel();
             }
 
-            this.ongoingRequest = axios.CancelToken.source();
+            this.ongoingRequest = this.http.CancelToken.source();
             this.loading = true;
 
-            axios.get(this.source, {
+            this.http.get(this.source, {
                 params: this.requestParams(),
                 cancelToken: this.ongoingRequest.token,
             }).then(({ data }) => {
@@ -278,9 +298,9 @@ export default {
                 this.$emit('fetch', this.optionList);
                 this.allowsSelection = true;
                 this.loading = false;
-            }).catch((error) => {
+            }).catch(error => {
                 this.loading = false;
-                if (!axios.isCancel(error)) {
+                if (!this.http.isCancel(error)) {
                     this.errorHandler(error);
                 }
             });
@@ -292,8 +312,8 @@ export default {
             }
         },
         handleMultipleSelection(option) {
-            const index = this.value
-                .findIndex((val) => this.valueMatchesOption(val, option));
+            const index = this.modelValue
+                .findIndex(val => this.valueMatchesOption(val, option));
 
             const value = this.updateMultipleSelection(index, option);
             this.update(value);
@@ -301,7 +321,7 @@ export default {
         handleSingleSelection(option) {
             this.reset();
 
-            const selection = this.valueMatchesOption(this.value, option);
+            const selection = this.valueMatchesOption(this.modelValue, option);
 
             if (!selection) {
                 this.update(this.optionValue(option));
@@ -316,7 +336,7 @@ export default {
         },
         highlight(label) {
             return this.query.toLowerCase().split(' ')
-                .filter((arg) => arg !== '')
+                .filter(arg => arg !== '')
                 .reduce((label, arg) => this.bold(label, arg), label);
         },
         init() {
@@ -326,15 +346,15 @@ export default {
         },
         isSelected(option) {
             return this.multiple
-                ? this.value.some((val) => this.valueMatchesOption(val, option))
-                : this.valueMatchesOption(this.value, option);
+                ? this.modelValue.some(val => this.valueMatchesOption(val, option))
+                : this.valueMatchesOption(this.modelValue, option);
         },
         matchesQuery(option) {
             const label = this.displayLabel(option);
 
             return this.query.toLowerCase().split(' ')
-                .filter((arg) => arg !== '')
-                .every((arg) => `${label}`.toLowerCase().indexOf(arg) >= 0);
+                .filter(arg => arg !== '')
+                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
         },
         optionValue(option) {
             return this.objects
@@ -350,7 +370,7 @@ export default {
         },
         reload() {
             if (!this.hasOptions && !this.readonly && !this.disabled) {
-                this.fetch();
+                this.fetchIfServerSide();
             }
         },
         requestParams() {
@@ -363,19 +383,19 @@ export default {
             };
 
             ['customParams', 'params', 'pivotParams']
-                .filter((key) => this[key] && Object.keys(this[key]).length > 0)
-                .forEach((key) => (params[key] = this[key]));
+                .filter(key => this[key] && Object.keys(this[key]).length > 0)
+                .forEach(key => (params[key] = this[key]));
 
             return params;
         },
         requestValue() {
             if (!this.objects) {
-                return this.value;
+                return this.modelValue;
             }
 
             return this.multiple
-                ? this.value.map((value) => value[this.trackBy])
-                : this.value[this.trackBy];
+                ? this.modelValue.map(value => value[this.trackBy])
+                : this.modelValue[this.trackBy];
         },
         reset() {
             this.query = '';
@@ -396,7 +416,7 @@ export default {
         },
         update(value) {
             this.internalValue = value;
-            this.$emit('input', value);
+            this.$emit('update:modelValue', value);
             this.$emit('update');
         },
         updateSelection() {
@@ -404,7 +424,7 @@ export default {
                 ? this.valuesWhithinOptions()
                 : this.valueWhithinOptions();
 
-            if (JSON.stringify(value) !== JSON.stringify(this.value)) {
+            if (JSON.stringify(value) !== JSON.stringify(this.modelValue)) {
                 this.update(value);
             }
         },
@@ -414,17 +434,17 @@ export default {
                 : `${value}` === `${option[this.trackBy]}`;
         },
         valuesWhithinOptions() {
-            return this.value.filter((val) => this.optionList
-                .some((option) => this.valueMatchesOption(val, option)));
+            return this.modelValue.filter(val => this.optionList
+                .some(option => this.valueMatchesOption(val, option)));
         },
         valueWhithinOptions() {
             return this.optionList
-                .some((option) => this.valueMatchesOption(this.value, option))
-                ? this.value
+                .some(option => this.valueMatchesOption(this.modelValue, option))
+                ? this.modelValue
                 : null;
         },
         updateMultipleSelection(index, option) {
-            const value = JSON.parse(JSON.stringify(this.value));
+            const value = JSON.parse(JSON.stringify(this.modelValue));
 
             if (index >= 0) {
                 value.splice(index, 1);
@@ -439,12 +459,12 @@ export default {
     },
 
     render() {
-        return this.$scopedSlots.default({
+        return this.$slots.default({
             allowsSelection: this.allowsSelection,
             canAddTag: this.canAddTag,
             clearControl: this.clearControl,
             clearEvents: {
-                click: (e) => {
+                click: e => {
                     this.clear();
                     e.stopPropagation();
                 },
@@ -453,11 +473,11 @@ export default {
             disabled: this.disabled,
             displayLabel: this.displayLabel,
             dropdownDisabled: this.dropdownDisabled,
-            filterBindings: { value: this.query },
+            filterBindings: { modelValue: this.query },
             filterEvents: {
-                input: (e) => (this.query = e.target.value),
-                click: (e) => e.stopPropagation(),
-                keydown: (e) => {
+                input: e => (this.query = e.target.value),
+                click: e => e.stopPropagation(),
+                keydown: e => {
                     if (e.key === 'Enter' && this.taggable && !this.hasOptions && this.query) {
                         this.addTag();
                         e.stopPropagation();
@@ -470,7 +490,7 @@ export default {
             highlight: this.highlight,
             i18n: this.i18n,
             isSelected: this.isSelected,
-            itemEvents: (index) => ({
+            itemEvents: index => ({
                 select: () => this.select(index),
             }),
             loading: this.loading,
@@ -484,21 +504,20 @@ export default {
             modeBindings: {
                 modes: this.searchModes,
                 query: this.query,
-                value: this.mode,
+                'update:modelValue': this.mode,
             },
             modeEvents: {
-                input: (event) => (this.mode = event),
+                'update:modelValue': event => (this.mode = event),
                 change: this.fetch,
             },
             modeSelector: this.modeSelector,
             select: this.select,
-            selected: this.selected,
             selection: this.selection,
-            selectionBindings: (value) => ({
+            selectionBindings: value => ({
                 disabled: this.disabled || this.readonly,
                 label: this.displayLabel(value),
             }),
-            selectionEvents: (value) => ({
+            selectionEvents: value => ({
                 deselect: () => this.deselect(value),
             }),
             taggable: this.taggable,
