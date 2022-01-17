@@ -1,6 +1,5 @@
 <template>
-    <vue-select
-        :http="http"
+    <vue-select :http="http"
         :i18n="i18n"
         :error-handler="errorHandler"
         :source="source ? route(source) : null"
