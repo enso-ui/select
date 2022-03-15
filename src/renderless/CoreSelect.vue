@@ -186,7 +186,9 @@ export default {
         },
         options: {
             handler(options) {
-                this.optionList = options;
+                if (!this.serverSide) {
+                    this.optionList = options;
+                }
             },
             deep: true,
         },
