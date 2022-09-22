@@ -150,7 +150,7 @@ export default {
             return this.searchModes.length > 1;
         },
         needsSearch() {
-            return this.serverSide || this.optionList.length >= this.searchLimit;
+            return this.serverSide || this.optionList.length > this.searchLimit;
         },
         noResults() {
             return !!this.query && !this.loading && !this.hasFilteredOptions;
