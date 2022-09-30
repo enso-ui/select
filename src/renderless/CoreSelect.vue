@@ -391,7 +391,7 @@ export default {
             return params;
         },
         requestValue() {
-            if (!this.objects) {
+            if (!this.objects || this.modelValue === null) {
                 return this.modelValue;
             }
 
