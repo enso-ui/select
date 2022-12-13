@@ -15,6 +15,7 @@
                 }">
                 <dropdown :disabled="dropdownDisabled"
                     :manual="multiple || canAddTag || !allowsSelection"
+                    :opens-up="opensUp"
                     @hide="reset()"
                     ref="dropdown">
                     <template #trigger="{ triggerEvents, open }">
@@ -172,6 +173,10 @@ export default {
                 add: 'add',
                 search: 'Search...',
             }),
+        },
+        opensUp: {
+            type: Boolean,
+            default: false,
         },
         placeholder: {
             type: String,
