@@ -20,7 +20,7 @@
                     ref="dropdown">
                     <template #trigger="{ triggerEvents, open }">
                         <button class="button input"
-                            :class="{ 'has-error': hasError }"
+                            :class="[{ 'has-error': hasError }, { 'is-successful': isSuccess }]"
                             type="button"
                             :disabled="disabled"
                             @click="reload"
@@ -163,6 +163,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        isSuccess: {
+            type: Boolean,
+            default: false,
+        },
         labels: {
             type: Object,
             default: () => ({
@@ -224,6 +228,9 @@ export default {
 
                 &.has-error {
                     border-color: $danger;
+                }
+                &.is-successful {
+                    border-color: $success;
                 }
 
                 .control-display {
