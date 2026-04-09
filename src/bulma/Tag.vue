@@ -1,6 +1,6 @@
 <template>
     <div class="vue-select tags has-addons">
-        <span class="tag is-link">
+        <span class="tag">
             <span class="mr-1 tag-label">
                 {{ label }}
             </span>
@@ -46,14 +46,15 @@ export default {
 
         .tag {
             max-width: inherit;
+            display: inline-flex;
+            align-items: center;
             [dir='ltr'] & {
-                padding: 0.5em 0 0.5em 0.5em;
+                padding: 0.35em 0 0.35em 0.5em;
             }
             [dir='rtl'] & {
-                padding: 0.5em 0.5em 0.5em 0;
+                padding: 0.35em 0.5em 0.35em 0;
             }
-            height: 1.35em;
-            font-size: 1em;
+            min-height: 1.75em;
             margin: 0.075em 0 0.075em;
 
             .tag-label {
@@ -63,7 +64,6 @@ export default {
             }
 
             .tag.is-delete {
-                width: 1.4em;
                 flex: none;
             }
         }

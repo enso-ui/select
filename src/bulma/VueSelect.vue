@@ -18,10 +18,12 @@
                     :opens-up="opensUp"
                     @hide="reset()"
                     ref="dropdown">
-                    <template #trigger="{ triggerEvents, open }">
+                    <template #trigger="{ triggerEvents, open, opensUp }">
                         <button class="button input"
                             :class="[
                                 { 'has-error': hasError },
+                                { 'is-open': open },
+                                { 'is-multiple': multiple },
                                 { 'is-successful': isSuccess },
                                 { 'has-warning': hasWarning },
                             ]"
@@ -45,9 +47,10 @@
                                                     :key="value[trackBy]"
                                                     v-on="selectionEvents(value)"/>
                                             </template>
-                                            <template v-else>
+                                            <span class="selection-label"
+                                                v-else>
                                                 {{ displayLabel(selection) }}
-                                            </template>
+                                            </span>
                                         </div>
                                     </div>
                                     <template v-else-if="!hasOptions && !query">
@@ -63,7 +66,10 @@
                                         v-if="clearControl"/>
                                 </slot>
                             </div>
-                            <dropdown-indicator :open="open" v-if="!disabled"/>
+                            <dropdown-indicator
+                                :open="open"
+                                :opens-up="opensUp"
+                                v-if="!dropdownDisabled"/>
                         </button>
                     </template>
                     <template #controls="{ keydown }"
@@ -104,19 +110,9 @@
                                     <!-- eslint-disable-next-line vue/no-v-html -->
                                     <span v-html="highlight(displayLabel(option))"/>
                                 </slot>
-                                <span class="label tag"
-                                    :class="isSelected(option) ? 'is-warning' : 'is-success'"
-                                    v-if="current && !disableClear">
-                                    <span v-if="isSelected(option)">
-                                        {{ i18n(labels.deselect) }}
-                                    </span>
-                                    <span v-else>
-                                        {{ i18n(labels.select) }}
-                                    </span>
-                                </span>
                                 <span class="icon is-small selected has-text-success"
-                                    v-else-if="isSelected(option)">
-                                    <fa icon="check"/>
+                                    v-if="isSelected(option)">
+                                    <fa :icon="faCheck"/>
                                 </span>
                             </template>
                         </dropdown-item>
@@ -133,17 +129,13 @@
 
 <script>
 import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCheck }
-from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { focus, clickOutside } from '@enso-ui/directives';
 import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import SearchMode from '@enso-ui/search-mode/bulma';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
-
-library.add(faCheck);
 
 export default {
     name: 'VueSelect',
@@ -196,6 +188,10 @@ export default {
         },
     },
 
+    data: () => ({
+        faCheck,
+    }),
+
     computed: {
         selection() {
             return this.$refs.select.selection;
@@ -219,161 +215,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@import 'bulma/sass/utilities/derived-variables';
-
-.vue-select {
-    .dropdown {
-        width: 100%;
-
-        .dropdown-trigger {
-            width: 100%;
-
-            .button.input {
-                width: 100%;
-                height: unset;
-                min-height: 2.2125em;
-
-                &.has-error {
-                    border-color: $danger;
-                }
-                &.is-successful {
-                    border-color: $success;
-                }
-                &.has-warning {
-                    border-color: $warning;
-                }
-
-                .control-display {
-                    &.with-clear-button {
-                        max-width: calc(100% - 2.5em);
-                    }
-
-                    overflow-x: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-
-                    [dir='ltr'] & {
-                        text-align: left;
-                    }
-
-                    [dir='rtl'] & {
-                        text-align: right;
-                    }
-
-                    .field.is-grouped.is-grouped-multiline:last-child {
-                        margin-bottom: unset;
-                    }
-
-                    .field.is-grouped.is-grouped-multiline {
-                        .control:last-child,
-                        .control:not(:last-child) {
-                            margin-bottom: 0;
-                            display: contents;
-
-                            .tags:not(:last-child) {
-                                margin-bottom: 0;
-                            }
-                        }
-                    }
-
-                    .delete {
-                        position: absolute;
-                        top: 0.55rem;
-
-                        [dir='ltr'] & {
-                            right: 1.5rem;
-                        }
-
-                        [dir='rtl'] & {
-                            left: 1.5rem;
-                        }
-                    }
-
-                    .is-loading {
-                        -webkit-animation: spinAround .5s infinite linear;
-                        animation: spinAround .5s infinite linear;
-                        border: 2px solid #dbdbdb;
-                        border-radius: 290486px;
-                        border-top-color: transparent;
-                        content: "";
-                        display: block;
-                        height: 1em;
-                        width: 1em;
-                        position: absolute !important;
-                        top: .55em;
-                        z-index: 4;
-
-                        [dir='ltr'] & {
-                            border-right-color: transparent;
-                            right: 1.7rem;
-                        }
-
-                        [dir='rtl'] & {
-                            border-left-color: transparent;
-                            left: 1.7rem;
-                        }
-                    }
-                }
-            }
-        }
-
-        .dropdown-menu {
-            width: 100%;
-
-            .dropdown-content {
-                width: 100%;
-
-                .search {
-                    padding: 0 0.375rem 0.6rem;
-
-                    .input {
-                        height: 2em;
-                    }
-
-                    .search-mode {
-                        right: 0.3em;
-                        pointer-events: all;
-                    }
-                }
-
-                .dropdown-item {
-                    text-overflow: ellipsis;
-                    overflow-x: hidden;
-                    white-space: nowrap;
-                    padding: 0.375rem 2rem 0.375rem 0.6rem;
-
-                    .label.tag {
-                        position: absolute;
-                        padding: 0.3rem;
-                        height: 1.3rem;
-                        top: calc(50% - 0.65rem);
-                        z-index: 1;
-
-                        [dir='ltr'] & {
-                            right: 0.6rem;
-                        }
-
-                        [dir='rtl'] & {
-                            left: 0.6rem;
-                        }
-                    }
-
-                    .icon.selected {
-                        position: absolute;
-                        z-index: 1;
-
-                        [dir='ltr'] & {
-                            right: 0.6rem;
-                        }
-
-                        [dir='rtl'] & {
-                            left: 0.6rem;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-</style>
+<style lang="scss" src="./styles/vue-select.scss"></style>
