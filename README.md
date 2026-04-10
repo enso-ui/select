@@ -1,11 +1,5 @@
 # Select
 
-![NPM License](https://img.shields.io/npm/l/@enso-ui/select.svg)
-![npm download](https://img.shields.io/npm/dm/@enso-ui/select.svg)
-![GitHub top language](https://img.shields.io/github/languages/top/enso-ui/select.svg)
-![GitHub issues](https://img.shields.io/github/issues/enso-ui/select.svg)
-![npm version](https://img.shields.io/npm/v/@enso-ui/select.svg)
-
 Vue Select Component
 
 ## Usage
@@ -28,4 +22,4 @@ Thank you to all the people who already contributed to Enso!
 
 ## License
 
-[ISC](https://opensource.org/licenses/ISC)
+[MIT](LICENSE)
