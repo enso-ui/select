@@ -110,7 +110,7 @@
                                     <!-- eslint-disable-next-line vue/no-v-html -->
                                     <span v-html="highlight(displayLabel(option))"/>
                                 </slot>
-                                <span class="icon is-small selected has-text-success"
+                                <span class="icon is-small selected has-text-dark"
                                     v-if="isSelected(option)">
                                     <fa :icon="faCheck"/>
                                 </span>
