@@ -39,11 +39,15 @@
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
+                font-size: var(--bulma-body-font-size);
+                font-weight: var(--bulma-body-weight);
+                line-height: normal;
+                letter-spacing: 0;
                 border-radius: var(--enso-select-trigger-radius);
                 background-color: var(--enso-select-trigger-surface);
                 border-color: var(--enso-select-trigger-border);
                 box-shadow: none;
-                color: var(--enso-select-trigger-color);
+                color: var(--bulma-input-color);
                 width: var(--enso-select-trigger-width);
                 min-width: var(--enso-select-trigger-min-width);
                 max-width: var(--enso-select-trigger-max-width);
@@ -90,6 +94,11 @@
                     flex: 1 1 auto;
                     display: flex;
                     align-items: center;
+                    font-size: inherit;
+                    font-weight: inherit;
+                    line-height: inherit;
+                    letter-spacing: inherit;
+                    color: inherit;
                     min-height: 1em;
                     overflow-x: hidden;
                     white-space: nowrap;
@@ -123,6 +132,12 @@
                         .control:not(:last-child) {
                             display: contents;
                             margin-bottom: 0;
+                            font-family: inherit;
+                            font-size: inherit;
+                            font-weight: inherit;
+                            line-height: inherit;
+                            letter-spacing: inherit;
+                            color: inherit;
 
                             .tags:not(:last-child) {
                                 margin-bottom: 0;
@@ -132,10 +147,14 @@
 
                     .selection-label {
                         display: block;
+                        font-size: inherit;
+                        font-weight: inherit;
+                        line-height: inherit;
+                        letter-spacing: inherit;
+                        color: inherit;
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
-                        line-height: inherit;
                     }
 
                     .delete {
