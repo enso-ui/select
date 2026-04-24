@@ -1,6 +1,6 @@
 {
     "name": "@enso-ui/select",
-    "version": "4.1.8",
+    "version": "4.1.9",
     "description": "Selectable inputs and tag renderers for Enso UI.",
     "main": "index.js",
     "scripts": {
