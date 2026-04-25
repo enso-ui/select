@@ -1,41 +1,32 @@
 .vue-select {
     --enso-select-width: 100%;
-    --enso-select-trigger-container-width: 100%;
-    --enso-select-trigger-width: 100%;
-    --enso-select-trigger-min-width: auto;
-    --enso-select-trigger-max-width: none;
-    --enso-select-trigger-radius: var(--bulma-radius);
     --enso-select-trigger-surface: var(--enso-surface);
     --enso-select-trigger-border: var(--bulma-border);
-    --enso-select-trigger-color: var(--bulma-text-strong);
     --enso-select-dropdown-width: 100%;
     --enso-select-dropdown-min-width: 100%;
     --enso-select-dropdown-max-width: none;
-    --enso-select-dropdown-radius: var(--bulma-radius);
     --enso-select-dropdown-surface: var(--enso-surface);
     --enso-select-dropdown-border: var(--bulma-border);
     --enso-select-search-surface: var(--enso-surface);
     --enso-select-search-border: var(--bulma-input-border-color);
     --enso-select-search-color: var(--bulma-input-color);
-    --enso-select-search-placeholder: var(--bulma-text-light);
     --enso-select-item-color: var(--bulma-text);
     --enso-select-item-hover-surface: var(--bulma-scheme-main-ter);
     --enso-select-item-hover-color: var(--bulma-text-strong);
-    --enso-select-tag-surface: var(--bulma-scheme-main);
-    --enso-select-tag-border: var(--bulma-border);
-    --enso-select-tag-color: var(--bulma-text-light);
 
     .dropdown {
         width: var(--enso-select-width);
 
         .dropdown-trigger {
-            width: var(--enso-select-trigger-container-width);
+            width: 100%;
 
             .button.input.is-multiple {
                 height: auto;
             }
 
             .button.input {
+                --enso-control-hover-border-color: var(--bulma-border-hover);
+                --enso-control-active-border-color: var(--bulma-border-active);
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
@@ -44,14 +35,14 @@
                 font-weight: var(--bulma-body-weight);
                 line-height: normal;
                 letter-spacing: 0;
-                border-radius: var(--enso-select-trigger-radius);
+                border-radius: var(--bulma-radius);
                 background-color: var(--enso-select-trigger-surface);
                 border-color: var(--enso-select-trigger-border);
                 box-shadow: none;
                 color: var(--bulma-input-color);
-                width: var(--enso-select-trigger-width);
-                min-width: var(--enso-select-trigger-min-width);
-                max-width: var(--enso-select-trigger-max-width);
+                width: 100%;
+                min-width: auto;
+                max-width: none;
                 min-height: var(--bulma-control-height);
                 height: var(--bulma-control-height);
                 padding-inline-start: var(--bulma-control-padding-horizontal);
@@ -69,25 +60,31 @@
                 }
 
                 &:hover {
-                    border-color: var(--bulma-border-hover);
+                    border-color: var(--enso-control-hover-border-color);
                 }
 
                 &:focus,
                 &:focus-visible,
                 &.is-open {
-                    border-color: var(--bulma-border-active);
+                    border-color: var(--enso-control-active-border-color);
                     box-shadow: none;
                 }
 
                 &.has-error {
+                    --enso-control-hover-border-color: var(--bulma-danger);
+                    --enso-control-active-border-color: var(--bulma-danger);
                     border-color: var(--bulma-danger);
                 }
 
                 &.is-successful {
+                    --enso-control-hover-border-color: var(--bulma-success);
+                    --enso-control-active-border-color: var(--bulma-success);
                     border-color: var(--bulma-success);
                 }
 
                 &.has-warning {
+                    --enso-control-hover-border-color: var(--bulma-warning);
+                    --enso-control-active-border-color: var(--bulma-warning);
                     border-color: var(--bulma-warning);
                 }
 
@@ -210,7 +207,7 @@
                 max-width: var(--enso-select-dropdown-max-width);
                 background-color: var(--enso-select-dropdown-surface);
                 border: 1px solid var(--enso-select-dropdown-border);
-                border-radius: var(--enso-select-dropdown-radius);
+                border-radius: var(--bulma-radius);
                 box-shadow: none;
 
                 .search {
@@ -226,7 +223,7 @@
                     }
 
                     .input::placeholder {
-                        color: var(--enso-select-search-placeholder);
+                        color: var(--bulma-text-light);
                         opacity: 1;
                     }
 
@@ -292,10 +289,10 @@
                 .label.tag.is-success,
                 .label.tag.is-warning,
                 .label.tag.is-info {
-                    background-color: var(--enso-select-tag-surface);
-                    border: 1px solid var(--enso-select-tag-border);
+                    background-color: var(--bulma-scheme-main);
+                    border: 1px solid var(--bulma-border);
                     box-shadow: none;
-                    color: var(--enso-select-tag-color);
+                    color: var(--bulma-text-light);
                     font-weight: 600;
                 }
             }
