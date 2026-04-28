@@ -1,5 +1,5 @@
 <script>
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import Modes from '@enso-ui/search-mode/src/modes';
 
 export default {

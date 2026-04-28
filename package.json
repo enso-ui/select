@@ -1,6 +1,6 @@
 {
     "name": "@enso-ui/select",
-    "version": "4.1.12",
+    "version": "4.1.13",
     "description": "Selectable inputs and tag renderers for Enso UI.",
     "main": "index.js",
     "scripts": {
@@ -26,7 +26,7 @@
         "@fortawesome/fontawesome-svg-core": "^7.2.0",
         "@fortawesome/free-solid-svg-icons": "^7.2.0",
         "@fortawesome/vue-fontawesome": "3.1.3",
-        "lodash": "^4.17.10"
+        "lodash-es": "^4.18.1"
     },
     "peerDependencies": {
         "@enso-ui/directives": "^3.1.0",
