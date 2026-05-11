@@ -46,7 +46,6 @@
                 min-height: var(--bulma-control-height);
                 height: var(--bulma-control-height);
                 padding-inline-start: var(--bulma-control-padding-horizontal);
-                padding-inline-end: 0.75rem;
                 transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
 
                 &.is-multiple {
