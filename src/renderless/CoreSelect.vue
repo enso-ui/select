@@ -218,12 +218,12 @@ export default {
             this.fetchIfServerSide();
         },
         modelValue: {
-            handler(value) {
-                if (JSON.stringify(this.internalValue) !== JSON.stringify(value)) {
-                    this.$emit('update:modelValue', value);
-                }
+            handler() {
                 this.internalValue = null;
-                if (this.query) {
+
+                if (this.serverSide && this.hasSelection && !this.hasResolvedSelection()) {
+                    this.fetch();
+                } else if (this.query) {
                     this.fetchIfServerSide();
                 }
             },
@@ -312,6 +312,11 @@ export default {
                 this.allowsSelection = false;
                 this.fetch();
             }
+        },
+        hasResolvedSelection() {
+            return this.multiple
+                ? this.selection.length === this.modelValue.length
+                : this.selection !== null;
         },
         handleMultipleSelection(option) {
             const index = this.modelValue

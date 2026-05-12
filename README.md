@@ -1,6 +1,6 @@
 # Select
 [![License](https://img.shields.io/badge/license-MIT-10b981.svg)](https://github.com/enso-ui/select/blob/master/LICENSE)
-[![Stable](https://img.shields.io/badge/stable-4.1.8-2563eb.svg)](https://www.npmjs.com/package/@enso-ui/select)
+[![Stable](https://img.shields.io/badge/stable-4.1.16-2563eb.svg)](https://www.npmjs.com/package/@enso-ui/select)
 [![Downloads](https://img.shields.io/npm/dm/@enso-ui/select.svg)](https://www.npmjs.com/package/@enso-ui/select)
 [![Vue](https://img.shields.io/badge/vue-3.x-42b883.svg)](https://vuejs.org/)
 [![JavaScript](https://img.shields.io/badge/javascript-ES2020-f7df1e.svg)](https://developer.mozilla.org/docs/Web/JavaScript)
