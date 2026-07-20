@@ -6,10 +6,10 @@
             <template #default="{
                     allowsSelection, canAddTag, clearControl, clearEvents,
                     dropdownDisabled, disableClear, disabled, displayLabel,
-                    filterBindings, filterEvents, hasOptions, hasSelection,
+                    filterBindings, filterEvents, hasFetched, hasOptions, hasSelection,
                     highlight, i18n, isSelected, itemEvents, modeSelector,
                     modeBindings, modeEvents, multiple, needsSearch, noResults,
-                    reload, loading, options, query, reset, selection,
+                    reload, lazy, loading, options, query, reset, selection,
                     selectionBindings, selectionEvents, taggable,
                     taggableBindings, taggableEvents, trackBy,
                 }">
@@ -53,7 +53,8 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <template v-else-if="!hasOptions && !query">
+                                    <template v-else-if="!hasOptions && !query
+                                            && (!lazy || hasFetched)">
                                         {{ i18n(labels.noOptions) }}
                                     </template>
                                     <template v-else>

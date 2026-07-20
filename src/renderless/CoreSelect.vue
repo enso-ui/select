@@ -42,6 +42,10 @@ export default {
             type: String,
             default: 'name',
         },
+        lazy: {
+            type: Boolean,
+            default: false,
+        },
         multiple: {
             type: Boolean,
             default: false,
@@ -113,6 +117,7 @@ export default {
 
     data: v => ({
         allowsSelection: true,
+        hasFetched: false,
         internalValue: null,
         loading: false,
         mode: v.searchMode,
@@ -172,7 +177,8 @@ export default {
         },
         dropdownDisabled() {
             return this.readonly || this.disabled
-                || !this.hasOptions && !this.query && !this.taggable;
+                || !this.hasOptions && !this.query && !this.taggable
+                    && (!this.lazy || this.hasFetched);
         },
     },
 
@@ -299,6 +305,7 @@ export default {
                 this.processOptions(data);
                 this.$emit('fetch', this.optionList);
                 this.allowsSelection = true;
+                this.hasFetched = true;
                 this.loading = false;
             }).catch(error => {
                 this.loading = false;
@@ -349,7 +356,10 @@ export default {
         init() {
             this.fetch = debounce(this.fetch, this.debounce);
             this.addTag = debounce(this.addTag, 1000);
-            this.fetchIfServerSide();
+
+            if (!this.lazy || this.hasSelection) {
+                this.fetchIfServerSide();
+            }
         },
         isSelected(option) {
             return this.multiple
@@ -493,6 +503,7 @@ export default {
                 },
             },
             hasOptions: this.hasFilteredOptions,
+            hasFetched: this.hasFetched,
             hasSelection: this.hasSelection,
             highlight: this.highlight,
             i18n: this.i18n,
@@ -501,6 +512,7 @@ export default {
                 select: () => this.select(index),
             }),
             loading: this.loading,
+            lazy: this.lazy,
             multiple: this.multiple,
             needsSearch: this.needsSearch,
             noResults: this.noResults,
