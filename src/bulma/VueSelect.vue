@@ -9,7 +9,7 @@
                     filterBindings, filterEvents, hasFetched, hasOptions, hasSelection,
                     highlight, i18n, isSelected, itemEvents, modeSelector,
                     modeBindings, modeEvents, multiple, needsSearch, noResults,
-                    reload, lazy, loading, options, query, reset, selection,
+                    reload, loading, options, query, reset, selection,
                     selectionBindings, selectionEvents, taggable,
                     taggableBindings, taggableEvents, trackBy,
                 }">
@@ -53,8 +53,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <template v-else-if="!hasOptions && !query
-                                            && (!lazy || hasFetched)">
+                                    <template v-else-if="!hasOptions && !query && hasFetched">
                                         {{ i18n(labels.noOptions) }}
                                     </template>
                                     <template v-else>

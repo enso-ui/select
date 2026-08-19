@@ -42,10 +42,6 @@ export default {
             type: String,
             default: 'name',
         },
-        lazy: {
-            type: Boolean,
-            default: false,
-        },
         multiple: {
             type: Boolean,
             default: false,
@@ -178,7 +174,7 @@ export default {
         dropdownDisabled() {
             return this.readonly || this.disabled
                 || !this.hasOptions && !this.query && !this.taggable
-                    && (!this.lazy || this.hasFetched);
+                    && this.hasFetched;
         },
     },
 
@@ -357,7 +353,7 @@ export default {
             this.fetch = debounce(this.fetch, this.debounce);
             this.addTag = debounce(this.addTag, 1000);
 
-            if (!this.lazy || this.hasSelection) {
+            if (this.hasSelection) {
                 this.fetchIfServerSide();
             }
         },
@@ -512,7 +508,6 @@ export default {
                 select: () => this.select(index),
             }),
             loading: this.loading,
-            lazy: this.lazy,
             multiple: this.multiple,
             needsSearch: this.needsSearch,
             noResults: this.noResults,
