@@ -178,10 +178,7 @@ export default {
 
     watch: {
         customParams: {
-            handler() {
-                this.allowsSelection = false;
-                this.fetch();
-            },
+            handler: 'fetchIfServerSide',
             deep: true,
         },
         options: {
@@ -193,17 +190,11 @@ export default {
             deep: true,
         },
         params: {
-            handler() {
-                this.allowsSelection = false;
-                this.fetch();
-            },
+            handler: 'fetchIfServerSide',
             deep: true,
         },
         pivotParams: {
-            handler() {
-                this.allowsSelection = false;
-                this.fetch();
-            },
+            handler: 'fetchIfServerSide',
             deep: true,
         },
         query: 'fetchIfServerSide',
@@ -221,8 +212,8 @@ export default {
             handler() {
                 this.internalValue = null;
 
-                if (this.serverSide && this.hasSelection && !this.hasResolvedSelection()) {
-                    this.fetch();
+                if (this.hasSelection && !this.hasResolvedSelection()) {
+                    this.fetchIfServerSide();
                 } else if (this.query) {
                     this.fetchIfServerSide();
                 }
@@ -285,30 +276,39 @@ export default {
                 : displayLabel;
         },
         fetch() {
-            if (this.ongoingRequest) {
-                this.ongoingRequest.cancel();
-            }
+            const request = this.http.CancelToken.source();
 
-            this.ongoingRequest = this.http.CancelToken.source();
+            this.ongoingRequest = request;
             this.loading = true;
 
             this.http.get(this.source, {
                 params: this.requestParams(),
-                cancelToken: this.ongoingRequest.token,
+                cancelToken: request.token,
             }).then(({ data }) => {
-                this.processOptions(data);
-                this.$emit('fetch', this.optionList);
-                this.allowsSelection = true;
-                this.loading = false;
+                if (this.ongoingRequest === request) {
+                    this.processOptions(data);
+                    this.$emit('fetch', this.optionList);
+                }
             }).catch(error => {
-                this.loading = false;
                 if (!this.http.isCancel(error)) {
                     this.errorHandler(error);
+                }
+            }).finally(() => {
+                if (this.ongoingRequest === request) {
+                    this.ongoingRequest = null;
+                    this.allowsSelection = true;
+                    this.loading = false;
                 }
             });
         },
         fetchIfServerSide() {
             if (this.serverSide) {
+                if (this.ongoingRequest) {
+                    this.ongoingRequest.cancel();
+                    this.ongoingRequest = null;
+                    this.loading = false;
+                }
+
                 this.allowsSelection = false;
                 this.fetch();
             }
@@ -515,7 +515,7 @@ export default {
             },
             modeEvents: {
                 'update:modelValue': event => (this.mode = event),
-                change: this.fetch,
+                change: this.fetchIfServerSide,
             },
             modeSelector: this.modeSelector,
             select: this.select,

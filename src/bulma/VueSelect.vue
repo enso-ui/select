@@ -14,7 +14,8 @@
                     taggableBindings, taggableEvents, trackBy,
                 }">
                 <dropdown :disabled="dropdownDisabled"
-                    :manual="multiple || canAddTag || !allowsSelection"
+                    :disable-controls="!allowsSelection"
+                    :manual="multiple || canAddTag"
                     :opens-up="opensUp"
                     @hide="reset()"
                     ref="dropdown">
@@ -203,7 +204,7 @@ export default {
             this.$refs.select.clear();
         },
         fetch() {
-            this.$refs.select.fetch();
+            this.$refs.select.fetchIfServerSide();
         },
         hide() {
             this.$refs.dropdown.hide();
