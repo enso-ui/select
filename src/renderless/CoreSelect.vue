@@ -1,109 +1,52 @@
 <script>
+import {
+    computed, defineComponent, onBeforeMount, onBeforeUnmount, ref, watch,
+} from 'vue';
 import { debounce } from 'lodash-es';
 import Modes from '@enso-ui/search-mode/src/modes';
 
-export default {
+export default defineComponent({
     name: 'CoreSelect',
 
     inheritAttrs: false,
 
     props: {
-        customParams: {
-            type: Object,
-            default: null,
-        },
-        debounce: {
-            type: Number,
-            default: 300,
-        },
-        disableClear: {
-            type: Boolean,
-            default: false,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+        customParams: { type: Object, default: null },
+        debounce: { type: Number, default: 300 },
+        disableClear: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
         errorHandler: {
             type: Function,
             default: error => {
                 throw error;
             },
         },
-        http: {
-            default: null,
-            type: Function,
-        },
-        i18n: {
-            type: Function,
-            default: v => v,
-        },
-        label: {
-            type: String,
-            default: 'name',
-        },
-        multiple: {
-            type: Boolean,
-            default: false,
-        },
-        objects: {
-            type: Boolean,
-            default: false,
-        },
-        options: {
-            type: Array,
-            default: () => ([]),
-        },
-        paginate: {
-            type: Number,
-            default: 100,
-        },
-        params: {
-            type: Object,
-            default: null,
-        },
-        pivotParams: {
-            type: Object,
-            default: null,
-        },
-        readonly: {
-            type: Boolean,
-            default: false,
-        },
-        searchLimit: {
-            type: Number,
-            default: 10,
-        },
+        http: { type: Function, default: null },
+        i18n: { type: Function, default: value => value },
+        label: { type: String, default: 'name' },
+        multiple: { type: Boolean, default: false },
+        objects: { type: Boolean, default: false },
+        options: { type: Array, default: () => ([]) },
+        paginate: { type: Number, default: 100 },
+        params: { type: Object, default: null },
+        pivotParams: { type: Object, default: null },
+        readonly: { type: Boolean, default: false },
+        searchLimit: { type: Number, default: 10 },
         searchMode: {
             type: String,
             default: 'full',
-            validator: v => Modes.includes(v),
+            validator: value => Modes.includes(value),
         },
         searchModes: {
             type: Array,
             default: () => ['full'],
-            validator: v => v.every(mode => Modes.includes(mode)),
+            validator: value => value.every(mode => Modes.includes(mode)),
         },
-        source: {
-            type: String,
-            default: null,
-        },
-        taggable: {
-            type: Boolean,
-            default: false,
-        },
-        trackBy: {
-            type: String,
-            default: 'id',
-        },
-        translated: {
-            type: Boolean,
-            default: false,
-        },
-        modelValue: {
-            type: null,
-            required: true,
-        },
+        source: { type: String, default: null },
+        taggable: { type: Boolean, default: false },
+        trackBy: { type: String, default: 'id' },
+        translated: { type: Boolean, default: false },
+        modelValue: { type: null, required: true },
     },
 
     emits: [
@@ -111,430 +54,376 @@ export default {
         'selection', 'update', 'update:modelValue',
     ],
 
-    data: v => ({
-        allowsSelection: true,
-        internalValue: null,
-        loading: false,
-        mode: v.searchMode,
-        ongoingRequest: null,
-        optionList: v.options,
-        query: '',
-    }),
+    setup(props, { emit, expose, slots }) {
+        const allowsSelection = ref(true);
+        const loading = ref(false);
+        const mode = ref(props.searchMode);
+        const optionList = ref(props.options);
+        const query = ref('');
+        let ongoingRequest = null;
 
-    computed: {
-        canAddTag() {
-            return this.taggable && this.allowsSelection
-                && !!this.query && !this.loading && this.queryDoesntMatch;
-        },
-        clearControl() {
-            return !this.disableClear && !this.readonly && !this.disabled
-                && !this.loading && this.hasSelection;
-        },
-        filteredOptions() {
-            return this.query && !this.serverSide
-                ? this.optionList.filter(option => this.matchesQuery(option))
-                : this.optionList;
-        },
-        hasFilteredOptions() {
-            return this.filteredOptions.length > 0;
-        },
-        hasOptions() {
-            return this.optionList.length > 0;
-        },
-        hasSelection() {
-            return this.multiple
-                ? this.modelValue.length > 0
-                : this.modelValue !== null;
-        },
-        modeSelector() {
-            return this.searchModes.length > 1;
-        },
-        needsSearch() {
-            return this.serverSide || this.optionList.length > this.searchLimit;
-        },
-        noResults() {
-            return !!this.query && !this.loading && !this.hasFilteredOptions;
-        },
-        queryDoesntMatch() {
-            return !this.filteredOptions
-                .some(option => `${this.displayLabel(option)}`
-                    .toLowerCase() === this.query.toLowerCase());
-        },
-        selection() {
-            return this.multiple
-                ? this.optionList.filter(option => this.modelValue
-                    .some(val => this.valueMatchesOption(val, option)))
-                : this.optionList
-                    .find(option => this.valueMatchesOption(this.modelValue, option)) || null;
-        },
-        serverSide() {
-            return this.source !== null;
-        },
-        dropdownDisabled() {
-            return this.readonly || this.disabled
-                || !this.hasOptions && !this.query && !this.taggable;
-        },
-    },
+        const serverSide = computed(() => props.source !== null);
+        const hasSelection = computed(() => (props.multiple
+            ? props.modelValue.length > 0
+            : props.modelValue !== null));
 
-    watch: {
-        customParams: {
-            handler: 'fetchIfServerSide',
-            deep: true,
-        },
-        options: {
-            handler(options) {
-                if (!this.serverSide) {
-                    this.optionList = options;
-                }
-            },
-            deep: true,
-        },
-        params: {
-            handler: 'fetchIfServerSide',
-            deep: true,
-        },
-        pivotParams: {
-            handler: 'fetchIfServerSide',
-            deep: true,
-        },
-        query: 'fetchIfServerSide',
-        selection: {
-            handler() {
-                this.$emit('selection', this.selection);
-            },
-            deep: true,
-        },
-        source() {
-            this.optionList = this.options;
-            this.fetchIfServerSide();
-        },
-        modelValue: {
-            handler() {
-                this.internalValue = null;
-
-                if (this.hasSelection && !this.hasResolvedSelection()) {
-                    this.fetchIfServerSide();
-                } else if (this.query) {
-                    this.fetchIfServerSide();
-                }
-            },
-            deep: true,
-        },
-    },
-
-    created() {
-        if (!this.http && this.source !== null) {
-            throw Error('Using the serverside mode requires providing a http client');
-        }
-
-        this.init();
-    },
-
-    methods: {
-        addTag() {
-            if (this.taggable) {
-                this.$emit('add-tag', this.query);
-            }
-        },
-        bold(label, arg) {
-            let from;
-
-            try {
-                from = new RegExp(`(${arg})`, 'gi');
-            } catch {
-                from = arg;
-            }
-
-            return `${label}`.replace(from, '<b>$1</b>');
-        },
-        clear() {
-            this.update(this.multiple ? [] : null);
-            this.$emit('clear');
-        },
-        deselect(deselect) {
-            const value = JSON.parse(JSON.stringify(this.modelValue));
-
-            const index = value
-                .findIndex(val => this.objects
-                    ? val[this.trackBy] === deselect[this.trackBy]
-                    : val === deselect[this.trackBy]);
-
-            value.splice(index, 1);
-            this.update(value);
-            this.$emit('deselect', deselect);
-        },
-        displayLabel(option) {
+        const displayLabel = option => {
             if (!option) {
                 return null;
             }
 
-            const displayLabel = this.label.split('.')
+            const value = props.label.split('.')
                 .reduce((result, property) => result[property], option);
 
-            return this.translated
-                ? this.i18n(displayLabel)
-                : displayLabel;
-        },
-        fetch() {
-            const request = this.http.CancelToken.source();
+            return props.translated ? props.i18n(value) : value;
+        };
 
-            this.ongoingRequest = request;
-            this.loading = true;
+        const valueMatchesOption = (value, option) => (value !== null && props.objects
+            ? `${value[props.trackBy]}` === `${option[props.trackBy]}`
+            : `${value}` === `${option[props.trackBy]}`);
 
-            this.http.get(this.source, {
-                params: this.requestParams(),
-                cancelToken: request.token,
-            }).then(({ data }) => {
-                if (this.ongoingRequest === request) {
-                    this.processOptions(data);
-                    this.$emit('fetch', this.optionList);
-                }
-            }).catch(error => {
-                if (!this.http.isCancel(error)) {
-                    this.errorHandler(error);
-                }
-            }).finally(() => {
-                if (this.ongoingRequest === request) {
-                    this.ongoingRequest = null;
-                    this.allowsSelection = true;
-                    this.loading = false;
-                }
-            });
-        },
-        fetchIfServerSide() {
-            if (this.serverSide) {
-                if (this.ongoingRequest) {
-                    this.ongoingRequest.cancel();
-                    this.ongoingRequest = null;
-                    this.loading = false;
-                }
+        const matchesQuery = option => {
+            const label = displayLabel(option);
 
-                this.allowsSelection = false;
-                this.fetch();
+            return query.value.toLowerCase().split(' ')
+                .filter(argument => argument !== '')
+                .every(argument => `${label}`.toLowerCase().includes(argument));
+        };
+
+        const filteredOptions = computed(() => (query.value && !serverSide.value
+            ? optionList.value.filter(matchesQuery)
+            : optionList.value));
+        const hasFilteredOptions = computed(() => filteredOptions.value.length > 0);
+        const hasOptions = computed(() => optionList.value.length > 0);
+        const selection = computed(() => (props.multiple
+            ? optionList.value.filter(option => props.modelValue
+                .some(value => valueMatchesOption(value, option)))
+            : optionList.value
+                .find(option => valueMatchesOption(props.modelValue, option)) || null));
+        const queryDoesNotMatch = computed(() => !filteredOptions.value
+            .some(option => `${displayLabel(option)}`.toLowerCase()
+                === query.value.toLowerCase()));
+        const canAddTag = computed(() => props.taggable && allowsSelection.value
+            && !!query.value && !loading.value && queryDoesNotMatch.value);
+        const clearControl = computed(() => !props.disableClear && !props.readonly
+            && !props.disabled && !loading.value && hasSelection.value);
+        const modeSelector = computed(() => props.searchModes.length > 1);
+        const needsSearch = computed(() => serverSide.value
+            || optionList.value.length > props.searchLimit);
+        const noResults = computed(() => !!query.value && !loading.value
+            && !hasFilteredOptions.value);
+        const dropdownDisabled = computed(() => props.readonly || props.disabled
+            || !hasOptions.value && !query.value && !props.taggable);
+
+        const update = value => {
+            emit('update:modelValue', value);
+            emit('update');
+        };
+
+        const valuesWithinOptions = () => props.modelValue.filter(value => optionList.value
+            .some(option => valueMatchesOption(value, option)));
+
+        const valueWithinOptions = () => (optionList.value
+            .some(option => valueMatchesOption(props.modelValue, option))
+            ? props.modelValue
+            : null);
+
+        const updateSelection = () => {
+            const value = props.multiple
+                ? valuesWithinOptions()
+                : valueWithinOptions();
+
+            if (JSON.stringify(value) !== JSON.stringify(props.modelValue)) {
+                update(value);
             }
-        },
-        hasResolvedSelection() {
-            return this.multiple
-                ? this.selection.length === this.modelValue.length
-                : this.selection !== null;
-        },
-        handleMultipleSelection(option) {
-            const index = this.modelValue
-                .findIndex(val => this.valueMatchesOption(val, option));
+        };
 
-            const value = this.updateMultipleSelection(index, option);
-            this.update(value);
-        },
-        handleSingleSelection(option) {
-            this.reset();
+        const processOptions = options => {
+            optionList.value = options;
 
-            const selection = this.valueMatchesOption(this.modelValue, option);
+            if (!query.value && hasSelection.value) {
+                updateSelection();
+            }
+        };
 
-            if (!selection) {
-                this.update(this.optionValue(option));
-                this.$emit('select', this.objects ? option : option[this.trackBy]);
-                return;
+        const requestValue = () => {
+            if (!props.objects || props.modelValue === null) {
+                return props.modelValue;
             }
 
-            if (!this.disableClear) {
-                this.update(null);
-                this.$emit('deselect', this.objects ? option : option[this.trackBy]);
-            }
-        },
-        highlight(label) {
-            return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
-                .reduce((label, arg) => this.bold(label, arg), label);
-        },
-        init() {
-            this.fetch = debounce(this.fetch, this.debounce);
-            this.addTag = debounce(this.addTag, 1000);
-            this.fetchIfServerSide();
-        },
-        isSelected(option) {
-            return this.multiple
-                ? this.modelValue.some(val => this.valueMatchesOption(val, option))
-                : this.valueMatchesOption(this.modelValue, option);
-        },
-        matchesQuery(option) {
-            const label = this.displayLabel(option);
+            return props.multiple
+                ? props.modelValue.map(value => value[props.trackBy])
+                : props.modelValue[props.trackBy];
+        };
 
-            return this.query.toLowerCase().split(' ')
-                .filter(arg => arg !== '')
-                .every(arg => `${label}`.toLowerCase().indexOf(arg) >= 0);
-        },
-        optionValue(option) {
-            return this.objects
-                ? option
-                : option[this.trackBy];
-        },
-        processOptions(options) {
-            this.optionList = options;
-
-            if (!this.query && this.hasSelection) {
-                this.updateSelection();
-            }
-        },
-        reload() {
-            if (!this.hasOptions && !this.readonly && !this.disabled) {
-                this.fetchIfServerSide();
-            }
-        },
-        requestParams() {
+        const requestParams = () => {
             const params = {
-                paginate: this.paginate,
-                query: this.query,
-                searchMode: this.mode,
-                trackBy: this.trackBy,
-                value: this.requestValue(),
+                paginate: props.paginate,
+                query: query.value,
+                searchMode: mode.value,
+                trackBy: props.trackBy,
+                value: requestValue(),
             };
 
             ['customParams', 'params', 'pivotParams']
-                .filter(key => this[key] && Object.keys(this[key]).length > 0)
-                .forEach(key => (params[key] = this[key]));
+                .filter(key => props[key] && Object.keys(props[key]).length > 0)
+                .forEach(key => (params[key] = props[key]));
 
             return params;
-        },
-        requestValue() {
-            if (!this.objects || this.modelValue === null) {
-                return this.modelValue;
+        };
+
+        const fetch = debounce(() => {
+            const request = props.http.CancelToken.source();
+
+            ongoingRequest = request;
+            loading.value = true;
+
+            props.http.get(props.source, {
+                params: requestParams(),
+                cancelToken: request.token,
+            }).then(({ data }) => {
+                if (ongoingRequest === request) {
+                    processOptions(data);
+                    emit('fetch', optionList.value);
+                }
+            }).catch(error => {
+                if (!props.http.isCancel(error)) {
+                    props.errorHandler(error);
+                }
+            }).finally(() => {
+                if (ongoingRequest === request) {
+                    ongoingRequest = null;
+                    allowsSelection.value = true;
+                    loading.value = false;
+                }
+            });
+        }, props.debounce);
+
+        const fetchIfServerSide = () => {
+            if (serverSide.value) {
+                if (ongoingRequest) {
+                    ongoingRequest.cancel();
+                    ongoingRequest = null;
+                    loading.value = false;
+                }
+
+                allowsSelection.value = false;
+                fetch();
+            }
+        };
+
+        const addTag = debounce(() => {
+            if (props.taggable) {
+                emit('add-tag', query.value);
+            }
+        }, 1000);
+
+        const bold = (label, argument) => {
+            let from;
+
+            try {
+                from = new RegExp(`(${argument})`, 'gi');
+            } catch {
+                from = argument;
             }
 
-            return this.multiple
-                ? this.modelValue.map(value => value[this.trackBy])
-                : this.modelValue[this.trackBy];
-        },
-        reset() {
-            this.query = '';
-        },
-        select(index) {
-            if (!this.allowsSelection) {
-                return;
-            }
+            return `${label}`.replace(from, '<b>$1</b>');
+        };
 
-            const option = this.filteredOptions[index];
+        const clear = () => {
+            update(props.multiple ? [] : null);
+            emit('clear');
+        };
 
-            if (this.multiple) {
-                this.handleMultipleSelection(option);
-                return;
-            }
+        const deselect = deselected => {
+            const value = JSON.parse(JSON.stringify(props.modelValue));
+            const index = value.findIndex(item => (props.objects
+                ? item[props.trackBy] === deselected[props.trackBy]
+                : item === deselected[props.trackBy]));
 
-            this.handleSingleSelection(option);
-        },
-        update(value) {
-            this.internalValue = value;
-            this.$emit('update:modelValue', value);
-            this.$emit('update');
-        },
-        updateSelection() {
-            const value = this.multiple
-                ? this.valuesWhithinOptions()
-                : this.valueWhithinOptions();
+            value.splice(index, 1);
+            update(value);
+            emit('deselect', deselected);
+        };
 
-            if (JSON.stringify(value) !== JSON.stringify(this.modelValue)) {
-                this.update(value);
-            }
-        },
-        valueMatchesOption(value, option) {
-            return value !== null && this.objects
-                ? `${value[this.trackBy]}` === `${option[this.trackBy]}`
-                : `${value}` === `${option[this.trackBy]}`;
-        },
-        valuesWhithinOptions() {
-            return this.modelValue.filter(val => this.optionList
-                .some(option => this.valueMatchesOption(val, option)));
-        },
-        valueWhithinOptions() {
-            return this.optionList
-                .some(option => this.valueMatchesOption(this.modelValue, option))
-                ? this.modelValue
-                : null;
-        },
-        updateMultipleSelection(index, option) {
-            const value = JSON.parse(JSON.stringify(this.modelValue));
+        const hasResolvedSelection = () => (props.multiple
+            ? selection.value.length === props.modelValue.length
+            : selection.value !== null);
+
+        const optionValue = option => (props.objects ? option : option[props.trackBy]);
+
+        const updateMultipleSelection = (index, option) => {
+            const value = JSON.parse(JSON.stringify(props.modelValue));
 
             if (index >= 0) {
                 value.splice(index, 1);
-                this.$emit('deselect', this.objects ? option : option[this.trackBy]);
+                emit('deselect', props.objects ? option : option[props.trackBy]);
             } else {
-                value.push(this.optionValue(option));
-                this.$emit('select', this.objects ? option : option[this.trackBy]);
+                value.push(optionValue(option));
+                emit('select', props.objects ? option : option[props.trackBy]);
             }
 
             return value;
-        },
-    },
+        };
 
-    render() {
-        return this.$slots.default({
-            allowsSelection: this.allowsSelection,
-            canAddTag: this.canAddTag,
-            clearControl: this.clearControl,
+        const handleMultipleSelection = option => {
+            const index = props.modelValue
+                .findIndex(value => valueMatchesOption(value, option));
+
+            update(updateMultipleSelection(index, option));
+        };
+
+        const reset = () => (query.value = '');
+
+        const handleSingleSelection = option => {
+            reset();
+
+            if (!valueMatchesOption(props.modelValue, option)) {
+                update(optionValue(option));
+                emit('select', props.objects ? option : option[props.trackBy]);
+                return;
+            }
+
+            if (!props.disableClear) {
+                update(null);
+                emit('deselect', props.objects ? option : option[props.trackBy]);
+            }
+        };
+
+        const select = index => {
+            if (!allowsSelection.value) {
+                return;
+            }
+
+            const option = filteredOptions.value[index];
+
+            const handler = props.multiple
+                ? handleMultipleSelection
+                : handleSingleSelection;
+
+            handler(option);
+        };
+
+        const highlight = label => query.value.toLowerCase().split(' ')
+            .filter(argument => argument !== '')
+            .reduce((result, argument) => bold(result, argument), label);
+
+        const isSelected = option => (props.multiple
+            ? props.modelValue.some(value => valueMatchesOption(value, option))
+            : valueMatchesOption(props.modelValue, option));
+
+        const reload = () => {
+            if (!hasOptions.value && !props.readonly && !props.disabled) {
+                fetchIfServerSide();
+            }
+        };
+
+        watch(() => props.customParams, fetchIfServerSide, { deep: true });
+        watch(() => props.params, fetchIfServerSide, { deep: true });
+        watch(() => props.pivotParams, fetchIfServerSide, { deep: true });
+        watch(query, fetchIfServerSide);
+        watch(selection, () => emit('selection', selection.value), { deep: true });
+        watch(() => props.options, options => {
+            if (!serverSide.value) {
+                optionList.value = options;
+            }
+        }, { deep: true });
+        watch(() => props.source, () => {
+            optionList.value = props.options;
+            fetchIfServerSide();
+        });
+        watch(() => props.modelValue, () => {
+            if (hasSelection.value && !hasResolvedSelection()) {
+                fetchIfServerSide();
+            } else if (query.value) {
+                fetchIfServerSide();
+            }
+        }, { deep: true });
+
+        if (!props.http && serverSide.value) {
+            throw Error('Using the serverside mode requires providing a http client');
+        }
+
+        onBeforeMount(fetchIfServerSide);
+        onBeforeUnmount(() => {
+            fetch.cancel();
+            addTag.cancel();
+
+            if (ongoingRequest) {
+                ongoingRequest.cancel();
+            }
+        });
+
+        expose({
+            clear, fetch, fetchIfServerSide, selection,
+        });
+
+        return () => slots.default?.({
+            allowsSelection: allowsSelection.value,
+            canAddTag: canAddTag.value,
+            clearControl: clearControl.value,
             clearEvents: {
-                click: e => {
-                    this.clear();
-                    e.stopPropagation();
+                click: event => {
+                    clear();
+                    event.stopPropagation();
                 },
             },
-            disableClear: this.disableClear,
-            disabled: this.disabled,
-            displayLabel: this.displayLabel,
-            dropdownDisabled: this.dropdownDisabled,
-            filterBindings: { modelValue: this.query },
+            disableClear: props.disableClear,
+            disabled: props.disabled,
+            displayLabel,
+            dropdownDisabled: dropdownDisabled.value,
+            filterBindings: { modelValue: query.value },
             filterEvents: {
-                input: e => (this.query = e.target.value),
-                click: e => e.stopPropagation(),
-                keydown: e => {
-                    if (e.key === 'Enter' && this.taggable && !this.hasOptions && this.query) {
-                        this.addTag();
-                        e.stopPropagation();
-                        e.preventDefault();
+                input: event => (query.value = event.target.value),
+                click: event => event.stopPropagation(),
+                keydown: event => {
+                    if (event.key === 'Enter' && props.taggable
+                        && !hasOptions.value && query.value) {
+                        addTag();
+                        event.stopPropagation();
+                        event.preventDefault();
                     }
                 },
             },
-            hasOptions: this.hasFilteredOptions,
-            hasSelection: this.hasSelection,
-            highlight: this.highlight,
-            i18n: this.i18n,
-            isSelected: this.isSelected,
-            itemEvents: index => ({
-                select: () => this.select(index),
-            }),
-            loading: this.loading,
-            multiple: this.multiple,
-            needsSearch: this.needsSearch,
-            noResults: this.noResults,
-            options: this.filteredOptions,
-            query: this.query,
-            reload: this.reload,
-            reset: this.reset,
+            hasOptions: hasFilteredOptions.value,
+            hasSelection: hasSelection.value,
+            highlight,
+            i18n: props.i18n,
+            isSelected,
+            itemEvents: index => ({ select: () => select(index) }),
+            loading: loading.value,
+            multiple: props.multiple,
+            needsSearch: needsSearch.value,
+            noResults: noResults.value,
+            options: filteredOptions.value,
+            query: query.value,
+            reload,
+            reset,
             modeBindings: {
-                modes: this.searchModes,
-                query: this.query,
-                'update:modelValue': this.mode,
+                modes: props.searchModes,
+                query: query.value,
+                'update:modelValue': mode.value,
             },
             modeEvents: {
-                'update:modelValue': event => (this.mode = event),
-                change: this.fetchIfServerSide,
+                'update:modelValue': value => (mode.value = value),
+                change: fetchIfServerSide,
             },
-            modeSelector: this.modeSelector,
-            select: this.select,
-            selection: this.selection,
+            modeSelector: modeSelector.value,
+            select,
+            selection: selection.value,
             selectionBindings: value => ({
-                disabled: this.disabled || this.readonly,
-                label: this.displayLabel(value),
+                disabled: props.disabled || props.readonly,
+                label: displayLabel(value),
             }),
-            selectionEvents: value => ({
-                deselect: () => this.deselect(value),
-            }),
-            taggable: this.taggable,
+            selectionEvents: value => ({ deselect: () => deselect(value) }),
+            taggable: props.taggable,
             taggableBindings: {
                 index: 0,
                 selected: false,
             },
-            taggableEvents: { select: this.addTag },
-            trackBy: this.trackBy,
+            taggableEvents: { select: addTag },
+            trackBy: props.trackBy,
         });
     },
-};
+});
 </script>

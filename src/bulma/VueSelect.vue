@@ -9,7 +9,8 @@
                     filterBindings, filterEvents, hasOptions, hasSelection,
                     highlight, i18n, isSelected, itemEvents, modeSelector,
                     modeBindings, modeEvents, multiple, needsSearch, noResults,
-                    reload, loading, options, query, reset, selection,
+                    reload, loading, options, query, reset,
+                    selection: currentSelection,
                     selectionBindings, selectionEvents, taggable,
                     taggableBindings, taggableEvents, trackBy,
                 }">
@@ -19,7 +20,9 @@
                     :opens-up="opensUp"
                     @hide="reset()"
                     ref="dropdown">
-                    <template #trigger="{ triggerEvents, open, opensUp }">
+                    <template #trigger="{
+                            triggerEvents, open, opensUp: dropdownOpensUp,
+                        }">
                         <button class="button input"
                             :class="[
                                 { 'has-error': hasError },
@@ -36,7 +39,7 @@
                             <div class="control-display"
                                 :class="{ 'with-clear-button': !disableClear }">
                                 <slot name="selection"
-                                    :selection="selection"
+                                    :selection="currentSelection"
                                     :selection-bindings="selectionBindings"
                                     :selection-events="selectionEvents">
                                     <div class="field is-grouped is-grouped-multiline"
@@ -44,13 +47,13 @@
                                         <div class="control">
                                             <template v-if="multiple">
                                                 <tag v-bind="selectionBindings(value)"
-                                                    v-for="value in selection"
+                                                    v-for="value in currentSelection"
                                                     :key="value[trackBy]"
                                                     v-on="selectionEvents(value)"/>
                                             </template>
                                             <span class="selection-label"
                                                 v-else>
-                                                {{ displayLabel(selection) }}
+                                                {{ displayLabel(currentSelection) }}
                                             </span>
                                         </div>
                                     </div>
@@ -69,7 +72,7 @@
                             </div>
                             <dropdown-indicator
                                 :open="open"
-                                :opens-up="opensUp"
+                                :opens-up="dropdownOpensUp"
                                 v-if="!dropdownDisabled"/>
                         </button>
                     </template>
@@ -104,7 +107,7 @@
                             :key="option[trackBy]"
                             :selected="false"
                             v-on="itemEvents(index)">
-                            <template #default="{ current }">
+                            <template #default>
                                 <slot name="option"
                                     :option="option"
                                     :highlight="highlight">
@@ -128,92 +131,68 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed, useTemplateRef } from 'vue';
 import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { focus, clickOutside } from '@enso-ui/directives';
+import { focus as vFocus } from '@enso-ui/directives';
 import { Dropdown, DropdownItem } from '@enso-ui/dropdown/bulma';
 import DropdownIndicator from '@enso-ui/dropdown-indicator';
 import SearchMode from '@enso-ui/search-mode/bulma';
 import CoreSelect from '../renderless/CoreSelect.vue';
 import Tag from './Tag.vue';
 
-export default {
+defineOptions({
     name: 'VueSelect',
-
-    directives: { focus, clickOutside },
-
-    components: {
-        CoreSelect,
-        Dropdown,
-        DropdownItem,
-        DropdownIndicator,
-        Fa,
-        Tag,
-        SearchMode,
-    },
-
     inheritAttrs: false,
+});
 
-    props: {
-        hasError: {
-            type: Boolean,
-            default: false,
-        },
-        hasWarning: {
-            type: Boolean,
-            default: false,
-        },
-        isSuccess: {
-            type: Boolean,
-            default: false,
-        },
-        labels: {
-            type: Object,
-            default: () => ({
-                select: 'select',
-                deselect: 'deselect',
-                noOptions: 'No options available',
-                noResults: 'No search results found',
-                add: 'add',
-                search: 'Search...',
-            }),
-        },
-        opensUp: {
-            type: Boolean,
-            default: false,
-        },
-        placeholder: {
-            type: String,
-            default: 'Pick an option',
-        },
+defineProps({
+    hasError: {
+        type: Boolean,
+        default: false,
     },
-
-    data: () => ({
-        faCheck,
-    }),
-
-    computed: {
-        selection() {
-            return this.$refs.select.selection;
-        },
+    hasWarning: {
+        type: Boolean,
+        default: false,
     },
-
-    methods: {
-        clear() {
-            this.$refs.select.clear();
-        },
-        fetch() {
-            this.$refs.select.fetchIfServerSide();
-        },
-        hide() {
-            this.$refs.dropdown.hide();
-        },
-        show() {
-            this.$refs.dropdown.show();
-        },
+    isSuccess: {
+        type: Boolean,
+        default: false,
     },
-};
+    labels: {
+        type: Object,
+        default: () => ({
+            select: 'select',
+            deselect: 'deselect',
+            noOptions: 'No options available',
+            noResults: 'No search results found',
+            add: 'add',
+            search: 'Search...',
+        }),
+    },
+    opensUp: {
+        type: Boolean,
+        default: false,
+    },
+    placeholder: {
+        type: String,
+        default: 'Pick an option',
+    },
+});
+
+const selectRef = useTemplateRef('select');
+const dropdownRef = useTemplateRef('dropdown');
+const selection = computed(() => (selectRef.value ? selectRef.value.selection : null));
+
+const clear = () => selectRef.value.clear();
+const fetch = () => selectRef.value.fetchIfServerSide();
+const hide = () => dropdownRef.value.hide();
+const show = () => dropdownRef.value.show();
+
+defineExpose({
+    clear, fetch, hide, selection, show,
+});
 </script>
 
 <style lang="scss" src="./styles/vue-select.scss"></style>

@@ -11,42 +11,35 @@
     </vue-select>
 </template>
 
-<script>
+<script setup>
+import { computed, inject, useTemplateRef } from 'vue';
 import VueSelect from './VueSelect.vue';
 
-export default {
+defineOptions({
     name: 'EnsoSelect',
+});
 
-    components: { VueSelect },
+const errorHandler = inject('errorHandler');
+const http = inject('http');
+const i18n = inject('i18n');
+const route = inject('route');
 
-    inject: ['errorHandler', 'http', 'i18n', 'route'],
-
-    props: {
-        source: {
-            type: String,
-            default: null,
-        },
+defineProps({
+    source: {
+        type: String,
+        default: null,
     },
+});
 
-    computed: {
-        selection() {
-            return this.$refs.select.selection;
-        },
-    },
+const selectRef = useTemplateRef('select');
+const selection = computed(() => (selectRef.value ? selectRef.value.selection : null));
 
-    methods: {
-        clear() {
-            this.$refs.select.clear();
-        },
-        fetch() {
-            this.$refs.select.fetch();
-        },
-        hide() {
-            this.$refs.select.hide();
-        },
-        show() {
-            this.$refs.select.show();
-        },
-    },
-};
+const clear = () => selectRef.value.clear();
+const fetch = () => selectRef.value.fetch();
+const hide = () => selectRef.value.hide();
+const show = () => selectRef.value.show();
+
+defineExpose({
+    clear, fetch, hide, selection, show,
+});
 </script>
