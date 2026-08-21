@@ -116,7 +116,6 @@ export default {
         internalValue: null,
         loading: false,
         mode: v.searchMode,
-        ongoingRequest: null,
         optionList: v.options,
         query: '',
     }),
@@ -223,6 +222,8 @@ export default {
     },
 
     created() {
+        this.ongoingRequest = null;
+
         if (!this.http && this.source !== null) {
             throw Error('Using the serverside mode requires providing a http client');
         }
