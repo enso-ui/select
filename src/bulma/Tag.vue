@@ -11,23 +11,23 @@
     </div>
 </template>
 
-<script>
-export default {
+<script setup>
+defineOptions({
     name: 'Tag',
+});
 
-    props: {
-        disabled: {
-            type: Boolean,
-            required: true,
-        },
-        label: {
-            type: String,
-            required: true,
-        },
+defineProps({
+    disabled: {
+        type: Boolean,
+        required: true,
     },
+    label: {
+        type: String,
+        required: true,
+    },
+});
 
-    emits: ['deselect'],
-};
+defineEmits(['deselect']);
 </script>
 
 <style lang="scss">
